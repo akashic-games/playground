@@ -1,4 +1,4 @@
-import{m as p}from"./GameController-94fff9c9.js";import"./index-94b84d77.js";/*!-----------------------------------------------------------------------------
+import{m as p}from"./GameController-8e7d267f.js";import"./index-fefebfff.js";/*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Version: 0.41.0(38e1e3d097f84e336c311d071a9ffb5191d4ffd1)
  * Released under the MIT license
