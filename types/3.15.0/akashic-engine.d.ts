@@ -1,4 +1,4 @@
-/*v3.14.2
+/*v3.15.0
 
 */
 // Dependencies for this module:
@@ -6,6 +6,7 @@
 //   ../../../@akashic/pdi-types
 //   ../../../@akashic/playlog
 //   ../../../@akashic/trigger
+//   ../../../@akashic/game-configuration/lib/utils/PathUtil
 
 declare namespace g {
     import { Game } from "g/lib/Game";
@@ -57,7 +58,6 @@ declare module 'g/lib/Game' {
     import type { RandomGenerator } from "g/lib/RandomGenerator";
     import { Scene } from "g/lib/Scene";
     import type { SnapshotSaveRequest } from "g/lib/SnapshotSaveRequest";
-    import { Storage } from "g/lib/Storage";
     import { SurfaceAtlasSet } from "g/lib/SurfaceAtlasSet";
     import type { TickGenerationModeString } from "g/lib/TickGenerationModeString";
     import { WeakRefKVS } from "g/lib/WeakRefKVS";
@@ -310,10 +310,6 @@ declare module 'g/lib/Game' {
                 * ハンドラセット。
                 */
             handlerSet: GameHandlerSet;
-            /**
-                * ストレージ。
-                */
-            storage: Storage;
             /**
                 * ゲーム開発者向けのコンテナ。
                 *
@@ -1711,7 +1707,6 @@ declare module 'g/lib/Event' {
     import type { CommonOffset } from "@akashic/pdi-types";
     import type { Player } from "g/lib/Player";
     import type { RandomGenerator } from "g/lib/RandomGenerator";
-    import type { StorageValueStore } from "g/lib/Storage";
     /**
         * イベントの種別。
         *
@@ -1854,8 +1849,8 @@ declare module 'g/lib/Event' {
             type: "join";
             eventFlags: number;
             player: Player;
-            storageValues: StorageValueStore | undefined;
-            constructor(player: Player, storageValues?: StorageValueStore, eventFlags?: number);
+            storageValues: unknown;
+            constructor(player: Player, eventFlags?: number);
     }
     /**
         * プレイヤーの離脱を表すイベント。
@@ -2492,7 +2487,7 @@ declare module 'g/lib/RandomGenerator' {
 }
 
 declare module 'g/lib/Scene' {
-    import type { Asset, CommonOffset, StorageLoadError } from "@akashic/pdi-types";
+    import type { Asset, CommonOffset } from "@akashic/pdi-types";
     import { Trigger } from "@akashic/trigger";
     import { AssetAccessor } from "g/lib/AssetAccessor";
     import type { AssetGenerationConfiguration } from "g/lib/AssetGenerationConfiguration";
@@ -2504,7 +2499,6 @@ declare module 'g/lib/Scene' {
     import type { MessageEvent, OperationEvent } from "g/lib/Event";
     import type { Game } from "g/lib/Game";
     import type { LocalTickModeString } from "g/lib/LocalTickModeString";
-    import type { StorageLoader, StorageLoaderHandler, StorageReadKey, StorageValueStore, StorageValueStoreSerialization } from "g/lib/Storage";
     import type { TickGenerationModeString } from "g/lib/TickGenerationModeString";
     import type { Timer } from "g/lib/Timer";
     import type { TimerIdentifier } from "g/lib/TimerManager";
@@ -2543,11 +2537,6 @@ declare module 'g/lib/Scene' {
                 */
             assetPaths?: string[];
             /**
-                * このシーンで用いるストレージのキーを表す `StorageReadKey` の配列。
-                * @default undefined
-                */
-            storageKeys?: StorageReadKey[];
-            /**
                 * このシーンのローカルティック消化ポリシー。
                 *
                 * * `"full-local"` が与えられた場合、このシーンはローカルシーンと呼ばれる。
@@ -2572,15 +2561,6 @@ declare module 'g/lib/Scene' {
                 * @default undefined
                 */
             name?: string;
-            /**
-                * このシーンで復元するストレージデータ。
-                *
-                * falsyでない場合、 `Scene#serializeStorageValues()` の戻り値でなければならない。
-                * この値を指定した場合、 `storageValues` の値は `serializeStorageValues()` を呼び出したシーン(元シーン)の持っていた値を再現したものになる。
-                * この時、 `storageKeys` の値は元シーンと同じでなければならない。
-                * @default undefined
-                */
-            storageValuesSerialization?: StorageValueStoreSerialization;
             /**
                 * 時間経過の契機(ティック)をどのように生成するか。
                 *
@@ -2612,7 +2592,7 @@ declare module 'g/lib/Scene' {
     /**
         * シーンを表すクラス。
         */
-    export class Scene implements StorageLoaderHandler {
+    export class Scene {
             /**
                 * このシーンの子エンティティ。
                 *
@@ -2750,10 +2730,6 @@ declare module 'g/lib/Scene' {
                 */
             onOperation: Trigger<OperationEvent>;
             /**
-                * シーン内で利用可能なストレージの値を保持する `StorageValueStore`。
-                */
-            storageValues: StorageValueStore | undefined;
-            /**
                 * 時間経過イベント。本イベントの一度のfireにつき、常に1フレーム分の時間経過が起こる。
                 * @deprecated 非推奨である。将来的に削除される。代わりに `onUpdate` を利用すること。
                 */
@@ -2831,10 +2807,6 @@ declare module 'g/lib/Scene' {
                 * この値はゲームエンジンのロジックからは使用されず、ゲーム開発者は任意の目的に使用してよい。
                 */
             vars: any;
-            /**
-                * @private
-                */
-            _storageLoader: StorageLoader | undefined;
             /**
                 * アセットとストレージの読み込みが終わったことを通知するTrigger。
                 * @private
@@ -3051,17 +3023,8 @@ declare module 'g/lib/Scene' {
                 * `Scene` に必要なアセットは、通常、`Game#pushScene()` などによるシーン遷移にともなって暗黙に読み込みが開始される。
                 * ゲーム開発者はこのメソッドを呼び出すことで、シーン遷移前にアセット読み込みを開始する(先読みする)ことができる。
                 * 先読み開始後、シーン遷移時までに読み込みが完了していない場合、通常の読み込み処理同様にローディングシーンが表示される。
-                *
-                * このメソッドは `StorageLoader` についての先読み処理を行わない点に注意。
-                * ストレージの場合、書き込みが行われる可能性があるため、順序を無視して先読みすることはできない。
                 */
             prefetch(): void;
-            /**
-                * シーンが読み込んだストレージの値をシリアライズする。
-                *
-                * `Scene#storageValues` の内容をシリアライズする。
-                */
-            serializeStorageValues(): StorageValueStoreSerialization;
             requestAssets(assetIds: (string | DynamicAssetConfiguration | AssetGenerationConfiguration)[], handler: SceneRequestAssetHandler): void;
             /**
                 * @private
@@ -3094,14 +3057,6 @@ declare module 'g/lib/Scene' {
             /**
                 * @private
                 */
-            _onStorageLoadError(_error: StorageLoadError): void;
-            /**
-                * @private
-                */
-            _onStorageLoaded(): void;
-            /**
-                * @private
-                */
             _notifySceneReady(): void;
             /**
                 * @private
@@ -3126,279 +3081,6 @@ declare module 'g/lib/SnapshotSaveRequest' {
                 * `g.TimestampEvent` を利用するゲームの場合、それらと同じ基準の時間情報を与えなければならない。
                 */
             timestamp?: number;
-    }
-}
-
-declare module 'g/lib/Storage' {
-    import type { StorageLoadError } from "@akashic/pdi-types";
-    /**
-        * 操作対象とするストレージのリージョンを表す。
-        */
-    export enum StorageRegion {
-            /**
-                * slotsを表す。
-                */
-            Slots = 1,
-            /**
-                * scoresを表す。
-                */
-            Scores = 2,
-            /**
-                * countsを表す。
-                */
-            Counts = 3,
-            /**
-                * valuesを表す。
-                */
-            Values = 4
-    }
-    /**
-        * 一括取得を行う場合のソート順。
-        */
-    export enum StorageOrder {
-            /**
-                * 昇順。
-                */
-            Asc = 0,
-            /**
-                * 降順。
-                */
-            Desc = 1
-    }
-    /**
-        * 条件を表す。
-        */
-    export enum StorageCondition {
-            /**
-                * 等価を表す（==）。
-                */
-            Equal = 1,
-            /**
-                * 「より大きい」を表す（>）。
-                */
-            GreaterThan = 2,
-            /**
-                * 「より小さい」を表す（<）。
-                */
-            LessThan = 3
-    }
-    /**
-        * Countsリージョンへの書き込み操作種別を表す。
-        */
-    export enum StorageCountsOperation {
-            /**
-                * インクリメント操作を実行する。
-                */
-            Incr = 1,
-            /**
-                * デクリメント操作を実行する。
-                */
-            Decr = 2
-    }
-    /**
-        * `StorageWriter#write()` に指定する書き込みオプション。
-        */
-    export interface StorageWriteOption {
-            /**
-                * 比較条件を表す。
-                */
-            condition?: StorageCondition;
-            /**
-                * 現在保存されている値と比較する値。
-                */
-            comparisonValue?: string | number;
-            /**
-                * 操作種別。
-                */
-            operation?: StorageCountsOperation;
-    }
-    /**
-        * `StorageReadKey` に指定する取得オプション。
-        */
-    export interface StorageReadOption {
-            /**
-                * リージョンキーでソートして一括取得を行う場合のソート順。
-                */
-            keyOrder?: StorageOrder;
-            /**
-                * 値でソートして一括取得を行う場合のソート順。
-                */
-            valueOrder?: StorageOrder;
-    }
-    /**
-        * ストレージキーを表す。
-        */
-    export interface StorageKey {
-            /**
-                * リージョン。
-                */
-            region: StorageRegion;
-            /**
-                * リージョンキー。
-                */
-            regionKey: string;
-            /**
-                * ゲームID。
-                */
-            gameId?: string;
-            /**
-                * ユーザID。
-                */
-            userId?: string;
-    }
-    /**
-        * 値の読み込み時に指定するキーを表す。
-        */
-    export interface StorageReadKey extends StorageKey {
-            /**
-                * 取得オプション。
-                */
-            option?: StorageReadOption;
-    }
-    /**
-        * ストレージキーに対応する値を表す。
-        */
-    export interface StorageValue {
-            /**
-                * 取得結果を表すデータ。
-                */
-            data: number | string;
-            /**
-                * データタグ。
-                */
-            tag?: string;
-            /**
-                * この `StorageValue` に対応する `StorageKey`。
-                */
-            storageKey?: StorageKey;
-    }
-    /**
-        * `StorageLoader` の読み込みまたは読み込み失敗を受け取るハンドラのインターフェース定義。
-        * 通常、このインターフェースをゲーム開発者が利用する必要はない。
-        */
-    export interface StorageLoaderHandler {
-            /**
-                * 読み込失敗の通知を受ける関数。
-                * @private
-                */
-            _onStorageLoadError(error: StorageLoadError): void;
-            /**
-                * 読み込完了の通知を受ける関数。
-                * @private
-                */
-            _onStorageLoaded(): void;
-    }
-    /**
-        * ストレージの値を保持するクラス。
-        * ゲーム開発者がこのクラスのインスタンスを直接生成することはない。
-        */
-    export class StorageValueStore {
-            /**
-                * @private
-                */
-            _keys: StorageKey[];
-            /**
-                * @private
-                */
-            _values: StorageValue[][] | undefined;
-            constructor(keys: StorageKey[], values?: StorageValue[][]);
-            /**
-                * 値の配列を `StorageKey` またはインデックスから取得する。
-                * 通常、インデックスは `Scene` のコンストラクタに指定した `storageKeys` のインデックスに対応する。
-                * @param keyOrIndex `StorageKey` 又はインデックス
-                */
-            get(keyOrIndex: StorageReadKey | number): StorageValue[] | undefined;
-            /**
-                * 値を `StorageKey` またはインデックスから取得する。
-                * 対応する値が複数ある場合は、先頭の値を取得する。
-                * 通常、インデックスは `Scene` のコンストラクタに指定した `storageKeys` のインデックスに対応する。
-                * @param keyOrIndex `StorageKey` 又はインデックス
-                */
-            getOne(keyOrIndex: StorageReadKey | number): StorageValue | undefined;
-    }
-    export type StorageValueStoreSerialization = any;
-    /**
-        * ストレージの値をロードするクラス。
-        * ゲーム開発者がこのクラスのインスタンスを直接生成することはなく、
-        * 本クラスの機能を利用することもない。
-        */
-    export class StorageLoader {
-            /**
-                * @private
-                */
-            _loaded: boolean;
-            /**
-                * @private
-                */
-            _storage: Storage;
-            /**
-                * @private
-                */
-            _valueStore: StorageValueStore;
-            /**
-                * @private
-                */
-            _handler: StorageLoaderHandler;
-            /**
-                * @private
-                */
-            _valueStoreSerialization: StorageValueStoreSerialization;
-            constructor(storage: Storage, keys: StorageReadKey[], serialization?: StorageValueStoreSerialization);
-            /**
-                * @private
-                */
-            _load(handler: StorageLoaderHandler): void;
-            /**
-                * @private
-                */
-            _onLoaded(values: StorageValue[][], serialization?: StorageValueStoreSerialization): void;
-            /**
-                * @private
-                */
-            _onError(error: StorageLoadError): void;
-    }
-    /**
-        * ストレージ。
-        * ゲーム開発者がこのクラスのインスタンスを直接生成することはない。
-        */
-    export class Storage {
-            /**
-                * @private
-                */
-            _write: ((key: StorageKey, value: StorageValue, option?: StorageWriteOption) => void) | undefined;
-            /**
-                * @private
-                */
-            _load: ((keys: StorageReadKey[], load: StorageLoader, serialization?: StorageValueStoreSerialization) => void) | undefined;
-            /**
-                * @private
-                */
-            _requestedKeysForJoinPlayer: StorageReadKey[] | undefined;
-            /**
-                * ストレージに値を書き込む。
-                * @param key ストレージキーを表す `StorageKey`
-                * @param value 値を表す `StorageValue`
-                * @param option 書き込みオプション
-                */
-            write(key: StorageKey, value: StorageValue, option?: StorageWriteOption): void;
-            /**
-                * 参加してくるプレイヤーの値をストレージから取得することを要求する。
-                * 取得した値は `JoinEvent#storageValues` に格納される。
-                * @param keys ストレージキーを表す `StorageReadKey` の配列。`StorageReadKey#userId` は無視される。
-                */
-            requestValuesForJoinPlayer(keys: StorageReadKey[]): void;
-            /**
-                * @private
-                */
-            _createLoader(keys: StorageReadKey[], serialization?: StorageValueStoreSerialization): StorageLoader;
-            /**
-                * @private
-                */
-            _registerWrite(write: (key: StorageKey, value: StorageValue, option?: StorageWriteOption) => void): void;
-            /**
-                * @private
-                */
-            _registerLoad(load: (keys: StorageKey[], loader: StorageLoader, serialization?: StorageValueStoreSerialization) => void): void;
     }
 }
 
@@ -3628,6 +3310,7 @@ declare module 'g/lib/index.common' {
     export { Module } from "g/lib/Module";
     export { ShaderProgram } from "g/lib/ShaderProgram";
     export { VideoSystem } from "g/lib/VideoSystem";
+    export { PathUtil } from "@akashic/game-configuration/lib/utils/PathUtil";
     export * from "g/lib/entities/CacheableE";
     export * from "g/lib/entities/E";
     export * from "g/lib/entities/FilledRect";
@@ -3675,7 +3358,6 @@ declare module 'g/lib/index.common' {
     export * from "g/lib/OperationPluginManager";
     export * from "g/lib/OperationPluginOperation";
     export * from "g/lib/OperationPluginStatic";
-    export * from "g/lib/PathUtil";
     export * from "g/lib/Player";
     export * from "g/lib/PointEventResolver";
     export * from "g/lib/RandomGenerator";
@@ -3686,7 +3368,6 @@ declare module 'g/lib/index.common' {
     export * from "g/lib/ShaderProgram";
     export * from "g/lib/SnapshotSaveRequest";
     export * from "g/lib/SpriteFactory";
-    export * from "g/lib/Storage";
     export * from "g/lib/SurfaceAtlas";
     export * from "g/lib/SurfaceAtlasSet";
     export * from "g/lib/SurfaceAtlasSlot";
@@ -6829,45 +6510,6 @@ declare module 'g/lib/NinePatchSurfaceEffector' {
                 * 指定の大きさに拡大・縮小した描画結果の `Surface` を生成して返す。詳細は `SurfaceEffector#render` の項を参照。
                 */
             render(srcSurface: Surface, width: number, height: number): Surface;
-    }
-}
-
-declare module 'g/lib/PathUtil' {
-    /**
-        * パスユーティリティ。
-        * 通常、ゲーム開発者がファイルパスを扱うことはなく、このモジュールのメソッドを呼び出す必要はない。
-        */
-    export module PathUtil {
-            interface PathComponents {
-                    host: string;
-                    path: string;
-            }
-            /**
-                * 二つのパス文字列をつなぎ、相対パス表現 (".", "..") を解決して返す。
-                * @param base 左辺パス文字列 (先頭の "./" を除き、".", ".." を含んではならない)
-                * @param path 右辺パス文字列
-                */
-            function resolvePath(base: string, path: string): string;
-            /**
-                * パス文字列からディレクトリ名部分を切り出して返す。
-                * @param path パス文字列
-                */
-            function resolveDirname(path: string): string;
-            /**
-                * パス文字列から拡張子部分を切り出して返す。
-                * @param path パス文字列
-                */
-            function resolveExtname(path: string): string;
-            /**
-                * パス文字列から、node.js において require() の探索範囲になるパスの配列を作成して返す。
-                * @param path ディレクトリを表すパス文字列
-                */
-            function makeNodeModulePaths(path: string): string[];
-            /**
-                * 与えられたパス文字列からホストを切り出す。
-                * @param path パス文字列
-                */
-            function splitPath(path: string): PathComponents;
     }
 }
 
