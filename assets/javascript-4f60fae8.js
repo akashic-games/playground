@@ -1,4 +1,4 @@
-import{conf as t,language as e}from"./typescript-9c2ab183.js";import"./GameController-7e899e22.js";import"./index-1aebafcd.js";/*!-----------------------------------------------------------------------------
+import{conf as t,language as e}from"./typescript-56ee0874.js";import"./GameController-d20ff078.js";import"./index-e3746fc8.js";/*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Version: 0.41.0(38e1e3d097f84e336c311d071a9ffb5191d4ffd1)
  * Released under the MIT license
