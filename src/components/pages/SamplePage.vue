@@ -3,9 +3,7 @@
 <template>
 	<div class="sample-page-container">
 		<div class="container-agv">
-			<div class="container-agv-canvas">
-				<GameController />
-			</div>
+			<GameController />
 			<div v-if="state.title || state.description" class="container-agv-meta">
 				<h1>{{ state.title }}</h1>
 				<div class="container-agv-meta-description">
@@ -13,9 +11,6 @@
 					<span v-html="state.description"></span>
 				</div>
 			</div>
-		</div>
-		<div class="container-editor hidden-scrollbar">
-			<AkashicEditor :pseudoFiles="gameConfs.pseudoFiles" />
 		</div>
 		<div v-if="props.showDownloadButton" class="container-download">
 			<DownloadButton :pseudoFiles="gameConfs.pseudoFiles" :name="props.name + '.' + Date.now()" />
@@ -27,7 +22,6 @@
 import { marked } from "marked";
 import { provide, reactive, watch } from "vue";
 import DownloadButton from "~/components/molecules/DownloadButton.vue";
-import AkashicEditor from "~/components/templates/AkashicEditor.vue";
 import GameController from "~/components/templates/GameController.vue";
 import { useGameContext, useGameContextKey } from "~/composables/useGameContext";
 import { useGameJSONResolver, useGameJSONResolverKey } from "~/composables/useGameJSONResolver";
@@ -137,16 +131,6 @@ watch(
 		line-height: 1.4;
 	}
 
-	.container-editor {
-		overflow: hidden;
-		height: 100%;
-		display: flex;
-		flex-direction: row;
-		position: relative;
-		background-color: white;
-		border-top: 3px double #333;
-	}
-
 	.container-download {
 		position: fixed;
 		bottom: 3px;
@@ -185,17 +169,6 @@ watch(
 	.container-agv-meta-description {
 		padding: 7px;
 		line-height: 1.4;
-	}
-
-	.container-editor {
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-		display: flex;
-		flex-direction: row;
-		position: relative;
-		background-color: white;
-		border-top: 3px double #333;
 	}
 
 	.container-download {
