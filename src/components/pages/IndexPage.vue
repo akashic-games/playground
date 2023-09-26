@@ -114,6 +114,26 @@
 					>【ツクールMV製】競え！成り上がりダンジョン</router-link
 				>
 			</li>
+			<li>
+				<router-link
+					:to="{
+						name: 'sample',
+						params: {
+							base64_uri_params: encode(
+								JSON.stringify({
+									type: 'gameJsonUri',
+									name: 'demo-touchevent',
+									uri: 'https://akashic-games.github.io/demo/content/demo-touchevent/game.json'
+								})
+							)
+						},
+						query: {
+							noEditor: null
+						}
+					}"
+					>タッチイベント (エディタ非表示)</router-link
+				>
+			</li>
 		</ul>
 		<h2>Snippet</h2>
 		<ul>

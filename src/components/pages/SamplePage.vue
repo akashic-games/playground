@@ -12,6 +12,9 @@
 				</div>
 			</div>
 		</div>
+		<div v-if="showEditor" class="container-editor hidden-scrollbar">
+			<AkashicEditor :pseudoFiles="gameConfs.pseudoFiles" />
+		</div>
 		<div v-if="props.showDownloadButton" class="container-download">
 			<DownloadButton :pseudoFiles="gameConfs.pseudoFiles" :name="props.name + '.' + Date.now()" />
 		</div>
@@ -22,6 +25,7 @@
 import { marked } from "marked";
 import { provide, reactive, watch } from "vue";
 import DownloadButton from "~/components/molecules/DownloadButton.vue";
+import AkashicEditor from "~/components/templates/AkashicEditor.vue";
 import GameController from "~/components/templates/GameController.vue";
 import { useGameContext, useGameContextKey } from "~/composables/useGameContext";
 import { useGameJSONResolver, useGameJSONResolverKey } from "~/composables/useGameJSONResolver";
@@ -41,6 +45,7 @@ interface Props {
 	name: string;
 	autoplay?: boolean;
 	showDownloadButton?: boolean;
+	showEditor?: boolean;
 }
 
 interface State {
@@ -51,7 +56,8 @@ interface State {
 
 const props = withDefaults(defineProps<Props>(), {
 	autoplay: false,
-	showDownloadButton: true
+	showDownloadButton: true,
+	showEditor: true
 });
 
 const gameConfs = useGameJSONResolver();
@@ -131,6 +137,16 @@ watch(
 		line-height: 1.4;
 	}
 
+	.container-editor {
+		overflow: hidden;
+		height: 100%;
+		display: flex;
+		flex-direction: row;
+		position: relative;
+		background-color: white;
+		border-top: 3px double #333;
+	}
+
 	.container-download {
 		position: fixed;
 		bottom: 3px;
@@ -169,6 +185,17 @@ watch(
 	.container-agv-meta-description {
 		padding: 7px;
 		line-height: 1.4;
+	}
+
+	.container-editor {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		display: flex;
+		flex-direction: row;
+		position: relative;
+		background-color: white;
+		border-top: 3px double #333;
 	}
 
 	.container-download {

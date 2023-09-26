@@ -43,7 +43,8 @@ const router = createRouter({
 					name: params.name ?? "noname",
 					gameJsonUri: params.uri,
 					autoplay: router.query.autoplay === null, // ?autoplay を解釈する (query の初期値は null)
-					showDownloadButton: router.query.nodl !== null // download ボタンを非表示化 (query の初期値は null)
+					showDownloadButton: router.query.nodl !== null, // download ボタンを非表示化 (query の初期値は null)
+					showEditor: router.query.noEditor !== null // エディタを非表示化 (query の初期値は null)
 				};
 			}
 		},
