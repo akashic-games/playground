@@ -18,6 +18,7 @@ interface State {
 	assetBase: string | null;
 	moduleMainScripts: { [name: string]: string };
 	dependencies: string[];
+	updatedAt: number;
 	generateGameJSON: (cascadeGameConfiguration?: GameConfiguration) => GameConfiguration;
 	getGameJSONFromUri: (uri: string) => Promise<GameConfiguration>;
 	fetchPseudoFilesFromUri: (uri: string) => Promise<void>;
@@ -125,6 +126,8 @@ export function useGameJSONResolver() {
 			const dependencies = Object.keys(gameJSON.moduleMainScripts);
 			state.dependencies.push(...dependencies);
 		}
+
+		state.updatedAt = Date.now();
 	};
 
 	const generatePseudoFileFromAsset = async (assetId: string, asset: Asset, assetBase: string): Promise<PseudoFile> => {
@@ -365,6 +368,7 @@ export function useGameJSONResolver() {
 		description: undefined,
 		moduleMainScripts: {},
 		dependencies: [],
+		updatedAt: 0,
 		getGameJSONFromUri,
 		fetchPseudoFilesFromUri,
 		fetchPseudoFilesFromGameJSON,

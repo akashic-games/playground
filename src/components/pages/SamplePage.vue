@@ -85,7 +85,7 @@ watch(
 );
 
 watch(
-	() => gameConfs.pseudoFiles,
+	() => gameConfs.updatedAt,
 	() => {
 		if (props.autoplay) {
 			// TODO: 重複ロジック

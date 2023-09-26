@@ -141,11 +141,10 @@
 							)
 						},
 						query: {
-							autoplay: null,
 							nodl: null
 						}
 					}"
-					>HoppingWitch (DLボタン非表示)</router-link
+					>HoppingWitch (DLボタン非表示 &amp; 自動開始なし)</router-link
 				>
 			</li>
 			<li>
