@@ -1,4 +1,4 @@
-var Ge=Object.defineProperty;var Qe=(e,n,i)=>n in e?Ge(e,n,{enumerable:!0,configurable:!0,writable:!0,value:i}):e[n]=i;var C=(e,n,i)=>(Qe(e,typeof n!="symbol"?n+"":n,i),i);import{m as Ze}from"./GameController-bd2cc0c0.js";import"./index-e51f8506.js";import"./useGameJSONResolver-7b4c2b37.js";/*!-----------------------------------------------------------------------------
+var Ge=Object.defineProperty;var Qe=(e,n,i)=>n in e?Ge(e,n,{enumerable:!0,configurable:!0,writable:!0,value:i}):e[n]=i;var C=(e,n,i)=>(Qe(e,typeof n!="symbol"?n+"":n,i),i);import{m as Ze}from"./GameController-0f8f8fa9.js";import"./index-91da75b5.js";import"./useGameJSONResolver-a76cc013.js";/*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Version: 0.41.0(38e1e3d097f84e336c311d071a9ffb5191d4ffd1)
  * Released under the MIT license
