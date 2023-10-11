@@ -1,5 +1,5 @@
 /*
-v3.2.0
+v3.3.0
 */
 
 declare module '@akashic/playlog' {
@@ -137,6 +137,7 @@ declare module '@akashic/playlog/Event' {
         8: number;
         9: number;
         10?: number;
+        11?: number;
     }
     export const enum PointMoveEventIndex {
         Code = 0,
@@ -149,7 +150,8 @@ declare module '@akashic/playlog/Event' {
         StartDeltaY = 7,
         PrevDeltaX = 8,
         PrevDeltaY = 9,
-        EntityId = 10
+        EntityId = 10,
+        Button = 11
     }
     export interface PointUpEvent extends Event {
         3: number;
@@ -160,6 +162,7 @@ declare module '@akashic/playlog/Event' {
         8: number;
         9: number;
         10?: number;
+        11?: number;
     }
     export const enum PointUpEventIndex {
         Code = 0,
@@ -172,7 +175,8 @@ declare module '@akashic/playlog/Event' {
         StartDeltaY = 7,
         PrevDeltaX = 8,
         PrevDeltaY = 9,
-        EntityId = 10
+        EntityId = 10,
+        Button = 11
     }
     export interface OperationEvent extends Event {
         3: number;

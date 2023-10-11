@@ -1,5 +1,5 @@
 /*
-v1.11.1
+v1.12.0
 */
 // Dependencies for this module:
 //   ../../../../@akashic/trigger
@@ -1415,6 +1415,7 @@ declare module '@akashic/pdi-types/platform/PlatformPointEvent' {
         * ポイントイベントを発生させたボタンの種類。
         */
     export const enum PlatformButtonType {
+            Unchanged = -1,
             Primary = 0,
             Auxiliary = 1,
             Secondary = 2
@@ -1442,7 +1443,9 @@ declare module '@akashic/pdi-types/platform/PlatformPointEvent' {
             offset: CommonOffset;
             /**
                 * ポイントイベントを発生させたボタンの種類。
-                * defalt: Primary
+                *
+                * PointDownEvent, PointUpEvent の場合、初期値は Primary、
+                * PointMoveEvent の場合、初期値は Unchanged
                 */
             button?: PlatformButtonType;
     }
