@@ -1,4 +1,4 @@
-import{m as d}from"./GameController-09f3946c.js";import"./index-86d0002b.js";import"./useGameJSONResolver-089fb185.js";/*!-----------------------------------------------------------------------------
+import{m as d}from"./GameController-05cda164.js";import"./index-36673b70.js";import"./useGameJSONResolver-9ad2ef6d.js";/*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Version: 0.41.0(38e1e3d097f84e336c311d071a9ffb5191d4ffd1)
  * Released under the MIT license
