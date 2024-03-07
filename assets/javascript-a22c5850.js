@@ -1,4 +1,4 @@
-import{conf as t,language as e}from"./typescript-dccf57e4.js";import"./GameController-05cda164.js";import"./index-36673b70.js";import"./useGameJSONResolver-9ad2ef6d.js";/*!-----------------------------------------------------------------------------
+import{conf as t,language as e}from"./typescript-50fdba73.js";import"./GameController-b40caca0.js";import"./index-bae31a55.js";import"./useGameJSONResolver-ed557dbe.js";/*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Version: 0.41.0(38e1e3d097f84e336c311d071a9ffb5191d4ffd1)
  * Released under the MIT license
