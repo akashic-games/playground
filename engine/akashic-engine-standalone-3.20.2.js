@@ -1,4 +1,4 @@
-/*! akashic-engine-standalone@3.17.0 */
+/*! akashic-engine-standalone@3.20.2 */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -280,11 +280,11 @@
 
 	var require$$0 = /*@__PURE__*/getAugmentedNamespace(tslib_es6);
 
-	var lib$3 = {};
+	var lib$4 = {};
 
 	var index_common = {};
 
-	var lib$2 = {};
+	var lib$3 = {};
 
 	var AssetConfiguration = {};
 
@@ -295,6 +295,17 @@
 		hasRequiredAssetConfiguration = 1;
 		Object.defineProperty(AssetConfiguration, "__esModule", { value: true });
 		return AssetConfiguration;
+	}
+
+	var AssetBundleConfiguration = {};
+
+	var hasRequiredAssetBundleConfiguration;
+
+	function requireAssetBundleConfiguration () {
+		if (hasRequiredAssetBundleConfiguration) return AssetBundleConfiguration;
+		hasRequiredAssetBundleConfiguration = 1;
+		Object.defineProperty(AssetBundleConfiguration, "__esModule", { value: true });
+		return AssetBundleConfiguration;
 	}
 
 	var GameConfiguration = {};
@@ -319,11 +330,11 @@
 		return OperationPluginInfo;
 	}
 
-	var hasRequiredLib$3;
+	var hasRequiredLib$4;
 
-	function requireLib$3 () {
-		if (hasRequiredLib$3) return lib$2;
-		hasRequiredLib$3 = 1;
+	function requireLib$4 () {
+		if (hasRequiredLib$4) return lib$3;
+		hasRequiredLib$4 = 1;
 		(function (exports) {
 			var __createBinding = (commonjsGlobal && commonjsGlobal.__createBinding) || (Object.create ? (function(o, m, k, k2) {
 			    if (k2 === undefined) k2 = k;
@@ -341,30 +352,69 @@
 			};
 			Object.defineProperty(exports, "__esModule", { value: true });
 			__exportStar(requireAssetConfiguration(), exports);
+			__exportStar(requireAssetBundleConfiguration(), exports);
 			__exportStar(requireGameConfiguration(), exports);
 			__exportStar(requireOperationPluginInfo(), exports); 
-		} (lib$2));
-		return lib$2;
+		} (lib$3));
+		return lib$3;
 	}
 
-	var cjs = {};
+	var lib$2 = {};
 
-	var hasRequiredCjs;
+	var TriggerLike = {};
 
-	function requireCjs () {
-		if (hasRequiredCjs) return cjs;
-		hasRequiredCjs = 1;
+	var hasRequiredTriggerLike;
 
-		function isPromise(target) {
+	function requireTriggerLike () {
+		if (hasRequiredTriggerLike) return TriggerLike;
+		hasRequiredTriggerLike = 1;
+		Object.defineProperty(TriggerLike, "__esModule", { value: true });
+		return TriggerLike;
+	}
+
+	var ChainTriggerLike = {};
+
+	var hasRequiredChainTriggerLike;
+
+	function requireChainTriggerLike () {
+		if (hasRequiredChainTriggerLike) return ChainTriggerLike;
+		hasRequiredChainTriggerLike = 1;
+		Object.defineProperty(ChainTriggerLike, "__esModule", { value: true });
+		return ChainTriggerLike;
+	}
+
+	var Trigger = {};
+
+	var isPromise = {};
+
+	var hasRequiredIsPromise;
+
+	function requireIsPromise () {
+		if (hasRequiredIsPromise) return isPromise;
+		hasRequiredIsPromise = 1;
+		Object.defineProperty(isPromise, "__esModule", { value: true });
+		isPromise.isPromise = void 0;
+		function isPromise$1(target) {
 		    return (target != null &&
 		        (typeof target === "object" || typeof target === "function") &&
 		        typeof target.then === "function");
 		}
+		isPromise.isPromise = isPromise$1;
+		return isPromise;
+	}
 
+	var hasRequiredTrigger;
+
+	function requireTrigger () {
+		if (hasRequiredTrigger) return Trigger;
+		hasRequiredTrigger = 1;
+		Object.defineProperty(Trigger, "__esModule", { value: true });
+		Trigger.Trigger = void 0;
+		const isPromise_js_1 = requireIsPromise();
 		/**
 		 * イベント通知機構クラス。
 		 */
-		class Trigger {
+		let Trigger$1 = class Trigger {
 		    constructor() {
 		        this._handlers = [];
 		        this.length = 0;
@@ -442,7 +492,7 @@
 		            if (handler.filter && !handler.filter(handler))
 		                continue;
 		            const ret = handler.func.call(handler.owner, arg);
-		            const returnedTruthy = !isPromise(ret) && !!ret;
+		            const returnedTruthy = !(0, isPromise_js_1.isPromise)(ret) && !!ret;
 		            if (returnedTruthy || handler.once) {
 		                if (!this._handlers)
 		                    continue;
@@ -550,12 +600,25 @@
 		            return false;
 		        return true;
 		    }
-		}
+		};
+		Trigger.Trigger = Trigger$1;
+		return Trigger;
+	}
 
+	var ChainTrigger = {};
+
+	var hasRequiredChainTrigger;
+
+	function requireChainTrigger () {
+		if (hasRequiredChainTrigger) return ChainTrigger;
+		hasRequiredChainTrigger = 1;
+		Object.defineProperty(ChainTrigger, "__esModule", { value: true });
+		ChainTrigger.ChainTrigger = void 0;
+		const Trigger_js_1 = requireTrigger();
 		/**
 		 * 他のTriggerLikeに反応して発火するイベント通知機構。
 		 */
-		class ChainTrigger extends Trigger {
+		let ChainTrigger$1 = class ChainTrigger extends Trigger_js_1.Trigger {
 		    /**
 		     * `ChainTrigger` のインスタンスを生成する。
 		     *
@@ -614,11 +677,38 @@
 		            this.fire(args);
 		        }
 		    }
-		}
+		};
+		ChainTrigger.ChainTrigger = ChainTrigger$1;
+		return ChainTrigger;
+	}
 
-		cjs.ChainTrigger = ChainTrigger;
-		cjs.Trigger = Trigger;
-		return cjs;
+	var hasRequiredLib$3;
+
+	function requireLib$3 () {
+		if (hasRequiredLib$3) return lib$2;
+		hasRequiredLib$3 = 1;
+		(function (exports) {
+			var __createBinding = (commonjsGlobal && commonjsGlobal.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+			    if (k2 === undefined) k2 = k;
+			    var desc = Object.getOwnPropertyDescriptor(m, k);
+			    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+			      desc = { enumerable: true, get: function() { return m[k]; } };
+			    }
+			    Object.defineProperty(o, k2, desc);
+			}) : (function(o, m, k, k2) {
+			    if (k2 === undefined) k2 = k;
+			    o[k2] = m[k];
+			}));
+			var __exportStar = (commonjsGlobal && commonjsGlobal.__exportStar) || function(m, exports) {
+			    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+			};
+			Object.defineProperty(exports, "__esModule", { value: true });
+			__exportStar(requireTriggerLike(), exports);
+			__exportStar(requireChainTriggerLike(), exports);
+			__exportStar(requireTrigger(), exports);
+			__exportStar(requireChainTrigger(), exports); 
+		} (lib$2));
+		return lib$2;
 	}
 
 	var lib$1 = {};
@@ -634,15 +724,15 @@
 		return commons;
 	}
 
-	var errors = {};
+	var errors$1 = {};
 
-	var hasRequiredErrors;
+	var hasRequiredErrors$1;
 
-	function requireErrors () {
-		if (hasRequiredErrors) return errors;
-		hasRequiredErrors = 1;
-		Object.defineProperty(errors, "__esModule", { value: true });
-		return errors;
+	function requireErrors$1 () {
+		if (hasRequiredErrors$1) return errors$1;
+		hasRequiredErrors$1 = 1;
+		Object.defineProperty(errors$1, "__esModule", { value: true });
+		return errors$1;
 	}
 
 	var CompositeOperation = {};
@@ -1175,6 +1265,17 @@
 		return PlatformPointEvent;
 	}
 
+	var RendererCandidate = {};
+
+	var hasRequiredRendererCandidate;
+
+	function requireRendererCandidate () {
+		if (hasRequiredRendererCandidate) return RendererCandidate;
+		hasRequiredRendererCandidate = 1;
+		Object.defineProperty(RendererCandidate, "__esModule", { value: true });
+		return RendererCandidate;
+	}
+
 	var RendererRequirement = {};
 
 	var hasRequiredRendererRequirement;
@@ -1219,7 +1320,7 @@
 			};
 			Object.defineProperty(exports, "__esModule", { value: true });
 			__exportStar(requireCommons(), exports);
-			__exportStar(requireErrors(), exports);
+			__exportStar(requireErrors$1(), exports);
 			__exportStar(requireCompositeOperation(), exports);
 			__exportStar(requireCompositeOperationString(), exports);
 			__exportStar(requireImageData(), exports);
@@ -1256,6 +1357,7 @@
 			__exportStar(requirePlatform$1(), exports);
 			__exportStar(requirePlatformEventHandler(), exports);
 			__exportStar(requirePlatformPointEvent(), exports);
+			__exportStar(requireRendererCandidate(), exports);
 			__exportStar(requireRendererRequirement(), exports);
 			__exportStar(requireResourceFactory$3(), exports); 
 		} (lib$1));
@@ -1273,7 +1375,7 @@
 		hasRequiredAudioPlayContext = 1;
 		Object.defineProperty(AudioPlayContext, "__esModule", { value: true });
 		AudioPlayContext.AudioPlayContext = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var AudioPlayContext$1 = /** @class */ (function () {
 		    function AudioPlayContext(param) {
 		        var _a;
@@ -1380,7 +1482,7 @@
 		                }
 		                message += ", actual type is " + (actualString.length > 40 ? actualString.substr(0, 40) : actualString);
 		            }
-		            catch (ex) {
+		            catch (_ex) {
 		                // メッセージ取得時に例外が発生したらactualの型情報出力はあきらめる
 		            }
 		        }
@@ -2863,7 +2965,7 @@
 		})();
 		Object.defineProperty(E, "__esModule", { value: true });
 		E.E = E.PointMoveEvent = E.PointUpEvent = E.PointDownEvent = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var Event_1 = requireEvent();
 		var ExceptionFactory_1 = requireExceptionFactory$2();
 		var Matrix_1 = requireMatrix();
@@ -3179,8 +3281,8 @@
 		     * 戻り値は、このエンティティの子孫の描画をスキップすべきであれば偽、でなければ真である。
 		     * (この値は、子孫の描画方法をカスタマイズする一部のサブクラスにおいて、通常の描画パスをスキップするために用いられる)
 		     *
-		     * @param renderer 描画先に対するRenderer
-		     * @param camera 対象のカメラ
+		     * @param _renderer 描画先に対するRenderer
+		     * @param _camera 対象のカメラ
 		     */
 		    E.prototype.renderSelf = function (_renderer, _camera) {
 		        // nothing to do
@@ -3260,6 +3362,8 @@
 		     * 子孫を持っている場合、子孫も破棄される。
 		     */
 		    E.prototype.destroy = function () {
+		        if (this.destroyed())
+		            return;
 		        if (this.parent)
 		            this.remove();
 		        if (this.children) {
@@ -3309,7 +3413,7 @@
 		     * 本メソッドは、このオブジェクトの `Object2D` 由来のプロパティ (`x`, `y`, `angle` など) を変更した場合にも呼びだす必要がある。
 		     * 本メソッドは、描画キャッシュの無効化処理を含まない。描画キャッシュを持つエンティティは、このメソッドとは別に `invalidate()` を提供している。
 		     * 描画キャッシュの無効化も必要な場合は、このメソッドではなくそちらを呼び出す必要がある。
-		     * @param isBubbling 通常ゲーム開発者が指定する必要はない。この変更通知が、(このエンティティ自身のみならず)子孫の変更の通知を含む場合、真を渡さなければならない。省略された場合、偽。
+		     * @param _isBubbling 通常ゲーム開発者が指定する必要はない。この変更通知が、(このエンティティ自身のみならず)子孫の変更の通知を含む場合、真を渡さなければならない。省略された場合、偽。
 		     */
 		    E.prototype.modified = function (_isBubbling) {
 		        // _matrixの用途は描画に限らない(e.g. E#findPointSourceByPoint)ので、Modifiedフラグと無関係にクリアする必要がある
@@ -3341,7 +3445,7 @@
 		     *
 		     * 戻り値は、子孫の探索をスキップすべきであれば偽、でなければ真である。
 		     *
-		     * @param point このエンティティ（`this`）の位置を基準とした相対座標
+		     * @param _point このエンティティ（`this`）の位置を基準とした相対座標
 		     */
 		    E.prototype.shouldFindChildrenByPoint = function (_point) {
 		        // nothing to do
@@ -3841,7 +3945,7 @@
 		     * これはエンジンが利用するものであり、ゲーム開発者が呼び出す必要はない。
 		     *
 		     * @param animatingHandler アニメーティングハンドラ
-		     * @param beforeSurface ハンドラ登録を解除するサーフェス
+		     * @param _beforeSurface ハンドラ登録を解除するサーフェス
 		     * @param afterSurface ハンドラを登録するサーフェス
 		     */
 		    function migrateAnimatingHandler(animatingHandler, _beforeSurface, afterSurface) {
@@ -4173,7 +4277,7 @@
 		})();
 		Object.defineProperty(FrameSprite, "__esModule", { value: true });
 		FrameSprite.FrameSprite = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var Sprite_1 = requireSprite();
 		/**
 		 * フレームとタイマーによるアニメーション機構を持つ `Sprite` 。
@@ -4211,7 +4315,7 @@
 		     * `Sprite` から `FrameSprite` を作成する。
 		     * @param sprite 画像として使う`Sprite`
 		     * @param width 作成されるエンティティの高さ。省略された場合、 `sprite.width`
-		     * @param hegith 作成されるエンティティの高さ。省略された場合、 `sprite.height`
+		     * @param height 作成されるエンティティの高さ。省略された場合、 `sprite.height`
 		     */
 		    FrameSprite.createBySprite = function (sprite, width, height) {
 		        var frameSprite = new FrameSprite({
@@ -4828,6 +4932,21 @@
 		return Pane;
 	}
 
+	var errors = {};
+
+	var hasRequiredErrors;
+
+	function requireErrors () {
+		if (hasRequiredErrors) return errors;
+		hasRequiredErrors = 1;
+		/**
+		 * akashic-engine 独自のエラー型定義。
+		 */
+		Object.defineProperty(errors, "__esModule", { value: true });
+		
+		return errors;
+	}
+
 	var AssetAccessor = {};
 
 	var hasRequiredAssetAccessor;
@@ -4850,7 +4969,7 @@
 		    /**
 		     * `AssetAccessor` のインスタンスを生成する。
 		     *
-		     * @param ラップする `AssetManager`
+		     * @param assetManager ラップする `AssetManager`
 		     */
 		    function AssetAccessor(assetManager) {
 		        this._assetManager = assetManager;
@@ -5100,6 +5219,15 @@
 		    AssetAccessor.prototype.getBinaryDataById = function (assetId) {
 		        return this.getBinaryById(assetId).data;
 		    };
+		    /**
+		     * アセットIDからアセットのパスを返す。
+		     * 当該のアセットが読み込まれていない場合、 null を返す。
+		     *
+		     * @param assetId 取得するアセットのID
+		     */
+		    AssetAccessor.prototype.pathOf = function (assetId) {
+		        return this._assetManager.resolveAccessorPath(assetId);
+		    };
 		    return AssetAccessor;
 		}());
 		AssetAccessor.AssetAccessor = AssetAccessor$1;
@@ -5262,6 +5390,96 @@
 
 	var AssetManager = {};
 
+	var BundledScriptAsset = {};
+
+	var hasRequiredBundledScriptAsset;
+
+	function requireBundledScriptAsset () {
+		if (hasRequiredBundledScriptAsset) return BundledScriptAsset;
+		hasRequiredBundledScriptAsset = 1;
+		Object.defineProperty(BundledScriptAsset, "__esModule", { value: true });
+		BundledScriptAsset.BundledScriptAsset = void 0;
+		var trigger_1 = requireLib$3();
+		var BundledScriptAsset$1 = /** @class */ (function () {
+		    function BundledScriptAsset(param) {
+		        this.type = "script";
+		        this.id = param.id;
+		        this.script = "";
+		        this.path = param.path;
+		        this.originalPath = param.path;
+		        this.onDestroyed = new trigger_1.Trigger();
+		        this.execute = param.execute.bind(this);
+		    }
+		    BundledScriptAsset.prototype.inUse = function () {
+		        return true;
+		    };
+		    BundledScriptAsset.prototype.destroy = function () {
+		        if (!this.onDestroyed.destroyed()) {
+		            this.onDestroyed.destroy();
+		        }
+		        this.execute = undefined;
+		    };
+		    BundledScriptAsset.prototype.destroyed = function () {
+		        return !this.execute;
+		    };
+		    BundledScriptAsset.prototype._load = function (loader) {
+		        loader._onAssetLoad(this);
+		    };
+		    BundledScriptAsset.prototype._assetPathFilter = function (path) {
+		        return path;
+		    };
+		    return BundledScriptAsset;
+		}());
+		BundledScriptAsset.BundledScriptAsset = BundledScriptAsset$1;
+		
+		return BundledScriptAsset;
+	}
+
+	var BundledTextAsset = {};
+
+	var hasRequiredBundledTextAsset;
+
+	function requireBundledTextAsset () {
+		if (hasRequiredBundledTextAsset) return BundledTextAsset;
+		hasRequiredBundledTextAsset = 1;
+		Object.defineProperty(BundledTextAsset, "__esModule", { value: true });
+		BundledTextAsset.BundledTextAsset = void 0;
+		var trigger_1 = requireLib$3();
+		var BundledTextAsset$1 = /** @class */ (function () {
+		    function BundledTextAsset(param) {
+		        this.type = "text";
+		        this.id = param.id;
+		        this.data = param.data;
+		        this.path = param.path;
+		        this.originalPath = param.path;
+		        this.onDestroyed = new trigger_1.Trigger();
+		    }
+		    BundledTextAsset.prototype.inUse = function () {
+		        return true;
+		    };
+		    BundledTextAsset.prototype.destroy = function () {
+		        if (!this.onDestroyed.destroyed()) {
+		            this.onDestroyed.destroy();
+		            this.onDestroyed = undefined;
+		        }
+		        this.data = undefined;
+		    };
+		    BundledTextAsset.prototype.destroyed = function () {
+		        return !this.onDestroyed;
+		    };
+		    BundledTextAsset.prototype._load = function (loader) {
+		        loader._onAssetLoad(this);
+		    };
+		    BundledTextAsset.prototype._assetPathFilter = function (path) {
+		        return path;
+		    };
+		    return BundledTextAsset;
+		}());
+		BundledTextAsset.BundledTextAsset = BundledTextAsset$1;
+		
+		return BundledTextAsset;
+	}
+
 	var EmptyBinaryAsset = {};
 
 	var hasRequiredEmptyBinaryAsset;
@@ -5271,7 +5489,7 @@
 		hasRequiredEmptyBinaryAsset = 1;
 		Object.defineProperty(EmptyBinaryAsset, "__esModule", { value: true });
 		EmptyBinaryAsset.EmptyBinaryAsset = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var EmptyBinaryAsset$1 = /** @class */ (function () {
 		    function EmptyBinaryAsset(id, path) {
 		        this.type = "binary";
@@ -5318,7 +5536,7 @@
 		hasRequiredEmptyVectorImageAsset = 1;
 		Object.defineProperty(EmptyVectorImageAsset, "__esModule", { value: true });
 		EmptyVectorImageAsset.EmptyVectorImageAsset = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var EmptyVectorImageAsset$1 = /** @class */ (function () {
 		    function EmptyVectorImageAsset(id, path, width, height, hint) {
 		        this.type = "vector-image";
@@ -5407,7 +5625,7 @@
 		hasRequiredPartialImageAsset = 1;
 		Object.defineProperty(PartialImageAsset, "__esModule", { value: true });
 		PartialImageAsset.PartialImageAsset = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		/**
 		 * 部分画像アセット。
 		 *
@@ -5513,8 +5731,21 @@
 	function requireAssetManager () {
 		if (hasRequiredAssetManager) return AssetManager;
 		hasRequiredAssetManager = 1;
+		var __assign = (commonjsGlobal && commonjsGlobal.__assign) || function () {
+		    __assign = Object.assign || function(t) {
+		        for (var s, i = 1, n = arguments.length; i < n; i++) {
+		            s = arguments[i];
+		            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+		                t[p] = s[p];
+		        }
+		        return t;
+		    };
+		    return __assign.apply(this, arguments);
+		};
 		Object.defineProperty(AssetManager, "__esModule", { value: true });
 		AssetManager.AssetManager = void 0;
+		var BundledScriptAsset_1 = requireBundledScriptAsset();
+		var BundledTextAsset_1 = requireBundledTextAsset();
 		var EmptyBinaryAsset_1 = requireEmptyBinaryAsset();
 		var EmptyGeneratedVectorImageAsset_1 = requireEmptyGeneratedVectorImageAsset();
 		var EmptyVectorImageAsset_1 = requireEmptyVectorImageAsset();
@@ -5572,7 +5803,7 @@
 		    // A: パターンの特殊文字でない文字の塊。そのままマッチさせる(ためにエスケープして正規表現にする)
 		    // B: パターンの特殊文字一つ(*, ** など)かそのエスケープ。patternSpecialsTable で対応する正規表現に変換
 		    var patternSpecialsTable = {
-		        "": "",
+		        "": "", // 入力末尾で parserRe の B 部分が $ にマッチして空文字列になることに対応
 		        "\\*": "\\*",
 		        "\\?": "\\?",
 		        "*": "[^/]*",
@@ -5610,7 +5841,7 @@
 		     * @param audioSystemConfMap このアセットマネージャに与えるオーディオシステムの宣言。
 		     * @param moduleMainScripts このアセットマネージャに与える require() 解決用のエントリポイント。
 		     */
-		    function AssetManager(gameParams, conf, audioSystemConfMap, moduleMainScripts) {
+		    function AssetManager(gameParams, conf, audioSystemConfMap, moduleMainScripts, moduleMainPaths) {
 		        this._resourceFactory = gameParams.resourceFactory;
 		        this._audioSystemManager = gameParams.audio;
 		        this._defaultAudioSystemId = gameParams.defaultAudioSystemId;
@@ -5621,9 +5852,11 @@
 		        this._liveAssetVirtualPathTable = {};
 		        this._liveAssetPathTable = {};
 		        this._moduleMainScripts = moduleMainScripts ? moduleMainScripts : {};
+		        this._moduleMainPaths = moduleMainPaths !== null && moduleMainPaths !== void 0 ? moduleMainPaths : null;
 		        this._refCounts = {};
 		        this._loadings = {};
 		        this._generatedAssetCount = 0;
+		        this._assetBundle = null;
 		        var assetIds = Object.keys(this.configuration);
 		        for (var i = 0; i < assetIds.length; ++i) {
 		            var assetId = assetIds[i];
@@ -5645,6 +5878,7 @@
 		        this._liveAssetPathTable = undefined;
 		        this._refCounts = undefined;
 		        this._loadings = undefined;
+		        this._assetBundle = undefined;
 		    };
 		    /**
 		     * このインスタンスが破棄済みであるかどうかを返す。
@@ -5688,18 +5922,21 @@
 		        return ret;
 		    };
 		    /**
-		     * プリロードすべきスクリプトアセットのIDを全て返す。
+		     * プリロードすべきスクリプトアセットの path を全て返す。
 		     */
-		    AssetManager.prototype.preloadScriptAssetIds = function () {
-		        return Object.entries(this.configuration)
-		            .filter(function (_a) {
-		            var conf = _a[1];
-		            return conf.type === "script" && conf.global && conf.preload;
-		        })
-		            .map(function (_a) {
-		            var assetId = _a[0];
-		            return assetId;
-		        });
+		    AssetManager.prototype.preloadScriptAssetPaths = function () {
+		        var assetPaths = [];
+		        if (this._assetBundle) {
+		            assetPaths.push.apply(assetPaths, Object.values(this._assetBundle.assets)
+		                .filter(function (conf) { return conf.type === "script" && conf.preload; })
+		                .map(function (conf) { return conf.path; }));
+		        }
+		        assetPaths.push.apply(assetPaths, Object.values(this.configuration)
+		            .filter(function (conf) { return conf.type === "script" && conf.global && conf.preload; })
+		            .map(function (conf) { return conf.virtualPath; }) // この箇所ではすでに virtualPath が補完されていることが前提
+		        );
+		        assetPaths = assetPaths.map(function (path) { return (path.startsWith("./") ? path : "./".concat(path)); });
+		        return assetPaths;
 		    };
 		    /**
 		     * パターンまたはフィルタに合致するパスを持つアセットIDを全て返す。
@@ -5881,6 +6118,29 @@
 		        return ret;
 		    };
 		    /**
+		     * アセットIDから読み込み済みのアクセッサパス返す。
+		     * 当該のアセットが読み込まれていない場合、 null を返す。
+		     *
+		     * @param assetId 取得するアセットのID
+		     */
+		    AssetManager.prototype.resolveAccessorPath = function (assetId) {
+		        var asset = this._assets[assetId];
+		        if (!asset)
+		            return null;
+		        var virtualPath = this._liveAssetPathTable[asset.path];
+		        if (!virtualPath)
+		            return null;
+		        return "/" + virtualPath;
+		    };
+		    /**
+		     * アセットバンドルを設定する。
+		     *
+		     * @param assetBundle アセットバンドル
+		     */
+		    AssetManager.prototype.setAssetBundle = function (assetBundle) {
+		        this._assetBundle = assetBundle;
+		    };
+		    /**
 		     * @ignore
 		     */
 		    AssetManager.prototype._normalize = function (configuration) {
@@ -5958,6 +6218,17 @@
 		        var id;
 		        var uri;
 		        var conf;
+		        if (this._assetBundle && typeof idOrConf === "string") {
+		            var id_1 = idOrConf;
+		            var conf_2 = this._assetBundle.assets[id_1];
+		            var type_1 = conf_2 === null || conf_2 === void 0 ? void 0 : conf_2.type;
+		            switch (type_1) {
+		                case "script":
+		                    return new BundledScriptAsset_1.BundledScriptAsset(__assign({ id: id_1 }, conf_2));
+		                case "text":
+		                    return new BundledTextAsset_1.BundledTextAsset(__assign({ id: id_1 }, conf_2));
+		            }
+		        }
 		        if (typeof idOrConf === "string") {
 		            id = idOrConf;
 		            conf = this.configuration[id];
@@ -6151,19 +6422,25 @@
 		     */
 		    AssetManager.prototype._addAssetToTables = function (asset) {
 		        this._assets[asset.id] = asset;
+		        var path;
 		        // DynamicAsset の場合は configuration に書かれていないので以下の判定が偽になる
 		        if (this.configuration[asset.id]) {
-		            var virtualPath = this.configuration[asset.id].virtualPath; // virtualPath の存在は _normalize() で確認済みのため 非 null アサーションとする
-		            if (!this._liveAssetVirtualPathTable.hasOwnProperty(virtualPath)) {
-		                this._liveAssetVirtualPathTable[virtualPath] = asset;
-		            }
-		            else {
-		                if (this._liveAssetVirtualPathTable[virtualPath].path !== asset.path)
-		                    throw ExceptionFactory_1.ExceptionFactory.createAssertionError("AssetManager#_onAssetLoad(): duplicated asset path");
-		            }
-		            if (!this._liveAssetPathTable.hasOwnProperty(asset.path))
-		                this._liveAssetPathTable[asset.path] = virtualPath;
+		            path = this.configuration[asset.id].virtualPath; // virtualPath の存在は _normalize() で確認済みのため 非 null アサーションとする
 		        }
+		        else if (this._assetBundle && this._assetBundle.assets[asset.id]) {
+		            path = this._assetBundle.assets[asset.id].path;
+		        }
+		        if (!path)
+		            return;
+		        if (!this._liveAssetVirtualPathTable.hasOwnProperty(path)) {
+		            this._liveAssetVirtualPathTable[path] = asset;
+		        }
+		        else {
+		            if (this._liveAssetVirtualPathTable[path].path !== asset.path)
+		                throw ExceptionFactory_1.ExceptionFactory.createAssertionError("AssetManager#_onAssetLoad(): duplicated asset path");
+		        }
+		        if (!this._liveAssetPathTable.hasOwnProperty(asset.path))
+		            this._liveAssetPathTable[asset.path] = path;
 		    };
 		    AssetManager.MAX_ERROR_COUNT = 3;
 		    return AssetManager;
@@ -7026,7 +7303,7 @@
 		hasRequiredTimer = 1;
 		Object.defineProperty(Timer, "__esModule", { value: true });
 		Timer.Timer = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		/**
 		 * 一定時間で繰り返される処理を表すタイマー。
 		 *
@@ -7189,12 +7466,12 @@
 		            return;
 		        var index = this._timers.indexOf(timer);
 		        if (index < 0)
-		            throw ExceptionFactory_1.ExceptionFactory.createAssertionError("TimerManager#deleteTimer: can not find timer");
+		            return;
 		        this._timers.splice(index, 1);
 		        timer.destroy();
 		        if (!this._timers.length) {
 		            if (!this._registered)
-		                throw ExceptionFactory_1.ExceptionFactory.createAssertionError("TimerManager#deleteTimer: handler is not handled");
+		                return;
 		            this._trigger.remove(this._tick, this);
 		            this._registered = false;
 		        }
@@ -7232,7 +7509,7 @@
 		    TimerManager.prototype._onTimeoutFired = function (identifier) {
 		        var index = this._identifiers.indexOf(identifier);
 		        if (index < 0)
-		            throw ExceptionFactory_1.ExceptionFactory.createAssertionError("TimerManager#_onTimeoutFired: can not find identifier");
+		            return;
 		        this._identifiers.splice(index, 1);
 		        var timer = identifier._timer;
 		        identifier.destroy();
@@ -7244,9 +7521,9 @@
 		    TimerManager.prototype._clear = function (identifier) {
 		        var index = this._identifiers.indexOf(identifier);
 		        if (index < 0)
-		            throw ExceptionFactory_1.ExceptionFactory.createAssertionError("TimerManager#_clear: can not find identifier");
+		            return;
 		        if (identifier.destroyed())
-		            throw ExceptionFactory_1.ExceptionFactory.createAssertionError("TimerManager#_clear: invalid identifier");
+		            return;
 		        this._identifiers.splice(index, 1);
 		        var timer = identifier._timer;
 		        identifier.destroy();
@@ -7266,8 +7543,7 @@
 		hasRequiredScene = 1;
 		Object.defineProperty(Scene, "__esModule", { value: true });
 		Scene.Scene = void 0;
-		var trigger_1 = requireCjs();
-		var AssetAccessor_1 = requireAssetAccessor();
+		var trigger_1 = requireLib$3();
 		var AssetHolder_1 = requireAssetHolder();
 		var Camera2D_1 = requireCamera2D();
 		var ExceptionFactory_1 = requireExceptionFactory$2();
@@ -7299,7 +7575,7 @@
 		        this._onReady = new trigger_1.Trigger();
 		        this._ready = this._onReady;
 		        this.assets = {};
-		        this.asset = new AssetAccessor_1.AssetAccessor(game._assetManager);
+		        this.asset = game.asset;
 		        this.vars = {};
 		        this._loaded = false;
 		        this._prefetchRequested = false;
@@ -7346,7 +7622,7 @@
 		     *
 		     * このメソッドは、このシーンに紐づいている `E` の `modified()` を呼び出すことで暗黙に呼び出される。
 		     * 通常、ゲーム開発者がこのメソッドを呼び出す必要はない。
-		     * @param isBubbling この関数をこのシーンの子の `modified()` から呼び出す場合、真を渡さなくてはならない。省略された場合、偽。
+		     * @param _isBubbling この関数をこのシーンの子の `modified()` から呼び出す場合、真を渡さなくてはならない。省略された場合、偽。
 		     */
 		    Scene.prototype.modified = function (_isBubbling) {
 		        this.game.modified();
@@ -7778,7 +8054,7 @@
 		})();
 		Object.defineProperty(LoadingScene, "__esModule", { value: true });
 		LoadingScene.LoadingScene = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var ExceptionFactory_1 = requireExceptionFactory$2();
 		var Scene_1 = requireScene();
 		/**
@@ -8767,7 +9043,7 @@
 		     * 実装上の制限から、このメソッドを呼び出す場合、maxAtlasNum が 1 または undefined/null(1として扱われる) である必要がある。
 		     * そうでない場合、失敗する可能性がある。
 		     *
-		     * @param missingGlyph `BitmapFont#map` に存在しないコードポイントの代わりに表示するべき文字。最初の一文字が用いられる。
+		     * @param missingGlyphChar `BitmapFont#map` に存在しないコードポイントの代わりに表示するべき文字。最初の一文字が用いられる。
 		     */
 		    DynamicFont.prototype.asBitmapFont = function (missingGlyphChar) {
 		        var _this = this;
@@ -8997,95 +9273,95 @@
 		                throw ExceptionFactory_1.ExceptionFactory.createAssertionError("EventConverter#toPlaylogEvent: Invalid type: " + e.type);
 		            case "timestamp":
 		                var ts = e;
-		                playerId = preservePlayer ? (_a = ts.player.id) !== null && _a !== void 0 ? _a : null : this._playerId;
+		                playerId = preservePlayer ? ((_a = ts.player.id) !== null && _a !== void 0 ? _a : null) : this._playerId;
 		                return [
-		                    2 /* pl.EventCode.Timestamp */,
-		                    ts.eventFlags,
-		                    playerId,
+		                    2 /* pl.EventCode.Timestamp */, // 0: イベントコード
+		                    ts.eventFlags, //          1: イベントフラグ値
+		                    playerId, //               2: プレイヤーID
 		                    ts.timestamp //            3: タイムスタンプ
 		                ];
 		            case "player-info":
 		                var playerInfo = e;
-		                playerId = preservePlayer ? (_b = playerInfo.player.id) !== null && _b !== void 0 ? _b : null : this._playerId;
+		                playerId = preservePlayer ? ((_b = playerInfo.player.id) !== null && _b !== void 0 ? _b : null) : this._playerId;
 		                return [
-		                    3 /* pl.EventCode.PlayerInfo */,
-		                    playerInfo.eventFlags,
-		                    playerId,
-		                    playerInfo.player.name,
+		                    3 /* pl.EventCode.PlayerInfo */, //   0: イベントコード
+		                    playerInfo.eventFlags, //     1: イベントフラグ値
+		                    playerId, //                  2: プレイヤーID
+		                    playerInfo.player.name, //    3: プレイヤー名
 		                    playerInfo.player.userData // 4: ユーザデータ
 		                ];
 		            case "point-down":
 		                var pointDown = e;
 		                targetId = pointDown.target ? pointDown.target.id : null;
-		                playerId = preservePlayer && pointDown.player ? (_c = pointDown.player.id) !== null && _c !== void 0 ? _c : null : this._playerId;
+		                playerId = preservePlayer && pointDown.player ? ((_c = pointDown.player.id) !== null && _c !== void 0 ? _c : null) : this._playerId;
 		                return [
-		                    33 /* pl.EventCode.PointDown */,
-		                    pointDown.eventFlags,
-		                    playerId,
-		                    pointDown.pointerId,
-		                    pointDown.point.x,
-		                    pointDown.point.y,
-		                    targetId,
-		                    pointDown.button,
+		                    33 /* pl.EventCode.PointDown */, // 0: イベントコード
+		                    pointDown.eventFlags, //   1: イベントフラグ値
+		                    playerId, //               2: プレイヤーID
+		                    pointDown.pointerId, //    3: ポインターID
+		                    pointDown.point.x, //      4: X座標
+		                    pointDown.point.y, //      5: Y座標
+		                    targetId, //               6?: エンティティID
+		                    pointDown.button, //       7?: ボタンの種類
 		                    !!pointDown.local //       8?: ローカルイベントかどうか
 		                ];
 		            case "point-move":
 		                var pointMove = e;
 		                targetId = pointMove.target ? pointMove.target.id : null;
-		                playerId = preservePlayer && pointMove.player ? (_d = pointMove.player.id) !== null && _d !== void 0 ? _d : null : this._playerId;
+		                playerId = preservePlayer && pointMove.player ? ((_d = pointMove.player.id) !== null && _d !== void 0 ? _d : null) : this._playerId;
 		                return [
-		                    34 /* pl.EventCode.PointMove */,
-		                    pointMove.eventFlags,
-		                    playerId,
-		                    pointMove.pointerId,
-		                    pointMove.point.x,
-		                    pointMove.point.y,
-		                    pointMove.startDelta.x,
-		                    pointMove.startDelta.y,
-		                    pointMove.prevDelta.x,
-		                    pointMove.prevDelta.y,
-		                    targetId,
-		                    pointMove.button,
+		                    34 /* pl.EventCode.PointMove */, // 0: イベントコード
+		                    pointMove.eventFlags, //   1: イベントフラグ値
+		                    playerId, //               2: プレイヤーID
+		                    pointMove.pointerId, //    3: ポインターID
+		                    pointMove.point.x, //      4: X座標
+		                    pointMove.point.y, //      5: Y座標
+		                    pointMove.startDelta.x, // 6: ポイントダウンイベントからのX座標の差
+		                    pointMove.startDelta.y, // 7: ポイントダウンイベントからのY座標の差
+		                    pointMove.prevDelta.x, //  8: 直前のポイントムーブイベントからのX座標の差
+		                    pointMove.prevDelta.y, //  9: 直前のポイントムーブイベントからのY座標の差
+		                    targetId, //               10?: エンティティID
+		                    pointMove.button, //       11?:
 		                    !!pointMove.local //       12?: ローカルイベントかどうか
 		                ];
 		            case "point-up":
 		                var pointUp = e;
 		                targetId = pointUp.target ? pointUp.target.id : null;
-		                playerId = preservePlayer && pointUp.player ? (_e = pointUp.player.id) !== null && _e !== void 0 ? _e : null : this._playerId;
+		                playerId = preservePlayer && pointUp.player ? ((_e = pointUp.player.id) !== null && _e !== void 0 ? _e : null) : this._playerId;
 		                return [
-		                    35 /* pl.EventCode.PointUp */,
-		                    pointUp.eventFlags,
-		                    playerId,
-		                    pointUp.pointerId,
-		                    pointUp.point.x,
-		                    pointUp.point.y,
-		                    pointUp.startDelta.x,
-		                    pointUp.startDelta.y,
-		                    pointUp.prevDelta.x,
-		                    pointUp.prevDelta.y,
-		                    targetId,
-		                    pointUp.button,
+		                    35 /* pl.EventCode.PointUp */, // 0: イベントコード
+		                    pointUp.eventFlags, //   1: イベントフラグ値
+		                    playerId, //             2: プレイヤーID
+		                    pointUp.pointerId, //    3: ポインターID
+		                    pointUp.point.x, //      4: X座標
+		                    pointUp.point.y, //      5: Y座標
+		                    pointUp.startDelta.x, // 6: ポイントダウンイベントからのX座標の差
+		                    pointUp.startDelta.y, // 7: ポイントダウンイベントからのY座標の差
+		                    pointUp.prevDelta.x, //  8: 直前のポイントムーブイベントからのX座標の差
+		                    pointUp.prevDelta.y, //  9: 直前のポイントムーブイベントからのY座標の差
+		                    targetId, //             10?: エンティティID
+		                    pointUp.button, //       11?:
 		                    !!pointUp.local //       12?: ローカルイベントかどうか
 		                ];
 		            case "message":
 		                var message = e;
-		                playerId = preservePlayer && message.player ? (_f = message.player.id) !== null && _f !== void 0 ? _f : null : this._playerId;
+		                playerId = preservePlayer && message.player ? ((_f = message.player.id) !== null && _f !== void 0 ? _f : null) : this._playerId;
 		                return [
-		                    32 /* pl.EventCode.Message */,
-		                    message.eventFlags,
-		                    playerId,
-		                    message.data,
+		                    32 /* pl.EventCode.Message */, // 0: イベントコード
+		                    message.eventFlags, //   1: イベントフラグ値
+		                    playerId, //             2: プレイヤーID
+		                    message.data, //         3: 汎用的なデータ
 		                    !!message.local //       4?: ローカル
 		                ];
 		            case "operation":
 		                var op = e;
-		                playerId = preservePlayer && op.player ? (_g = op.player.id) !== null && _g !== void 0 ? _g : null : this._playerId;
+		                playerId = preservePlayer && op.player ? ((_g = op.player.id) !== null && _g !== void 0 ? _g : null) : this._playerId;
 		                return [
-		                    64 /* pl.EventCode.Operation */,
-		                    op.eventFlags,
-		                    playerId,
-		                    op.code,
-		                    op.data,
+		                    64 /* pl.EventCode.Operation */, // 0: イベントコード
+		                    op.eventFlags, //          1: イベントフラグ値
+		                    playerId, //               2: プレイヤーID
+		                    op.code, //                3: 操作プラグインコード
+		                    op.data, //                4: 操作プラグインデータ
 		                    !!op.local //              5?: ローカル
 		                ];
 		            default:
@@ -9096,11 +9372,11 @@
 		        var playerId = this._playerId;
 		        var eventFlags = op.priority != null ? op.priority & 3 /* pl.EventFlagsMask.Priority */ : 0;
 		        return [
-		            64 /* pl.EventCode.Operation */,
-		            eventFlags,
-		            playerId,
-		            op._code,
-		            op.data,
+		            64 /* pl.EventCode.Operation */, // 0: イベントコード
+		            eventFlags, //             1: イベントフラグ値
+		            playerId, //               2: プレイヤーID
+		            op._code, //               3: 操作プラグインコード
+		            op.data, //                4: 操作プラグインデータ
 		            !!op.local //              5: ローカル
 		        ];
 		    };
@@ -9169,6 +9445,71 @@
 		Object.defineProperty(GameMainParameterObject, "__esModule", { value: true });
 		
 		return GameMainParameterObject;
+	}
+
+	var InitialScene = {};
+
+	var hasRequiredInitialScene;
+
+	function requireInitialScene () {
+		if (hasRequiredInitialScene) return InitialScene;
+		hasRequiredInitialScene = 1;
+		var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+		    var extendStatics = function (d, b) {
+		        extendStatics = Object.setPrototypeOf ||
+		            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+		            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+		        return extendStatics(d, b);
+		    };
+		    return function (d, b) {
+		        if (typeof b !== "function" && b !== null)
+		            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+		        extendStatics(d, b);
+		        function __() { this.constructor = d; }
+		        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+		    };
+		})();
+		Object.defineProperty(InitialScene, "__esModule", { value: true });
+		InitialScene.InitialScene = void 0;
+		var trigger_1 = requireLib$3();
+		var Scene_1 = requireScene();
+		/**
+		 * グローバルアセットを読み込むための初期シーン。
+		 */
+		var InitialScene$1 = /** @class */ (function (_super) {
+		    __extends(InitialScene, _super);
+		    function InitialScene(param) {
+		        var _this = _super.call(this, param) || this;
+		        _this.onAllAssetsLoad = new trigger_1.Trigger();
+		        _this.onLoad.add(_this._handleLoad, _this);
+		        return _this;
+		    }
+		    InitialScene.prototype.destroy = function () {
+		        _super.prototype.destroy.call(this);
+		        if (!this.onAllAssetsLoad.destroyed()) {
+		            this.onAllAssetsLoad.destroy();
+		        }
+		        this.onAllAssetsLoad = undefined;
+		    };
+		    InitialScene.prototype._handleLoad = function () {
+		        if (this.game._configuration.assetBundle) {
+		            var assetBundle = this.game._moduleManager._internalRequire(this.game._configuration.assetBundle);
+		            this.game._assetManager.setAssetBundle(assetBundle);
+		            var assetIds = Object.keys(assetBundle.assets);
+		            this.requestAssets(assetIds, this._handleRequestAssets.bind(this));
+		        }
+		        else {
+		            this.onAllAssetsLoad.fire();
+		        }
+		    };
+		    InitialScene.prototype._handleRequestAssets = function () {
+		        this.onAllAssetsLoad.fire();
+		    };
+		    return InitialScene;
+		}(Scene_1.Scene));
+		InitialScene.InitialScene = InitialScene$1;
+		
+		return InitialScene;
 	}
 
 	var InternalOperationPluginInfo = {};
@@ -9355,6 +9696,7 @@
 		            return this._scriptCaches[resolvedPath]._cachedValue();
 		        }
 		        // akashic-engine独自仕様: 対象の `path` が `moduleMainScripts` に指定されていたらそちらを参照する
+		        // moduleMainScripts は将来的に非推奨となるが、後方互換性のため moduleMainScripts が存在すれば moduleMainScripts を優先する
 		        if (moduleMainScripts[path]) {
 		            targetScriptAsset = liveAssetVirtualPathTable[resolvedPath];
 		        }
@@ -9412,15 +9754,20 @@
 		            // 2. If X begins with './' or '/' or '../'
 		            if (currentModule) {
 		                if (!currentModule._virtualDirname) {
-		                    throw ExceptionFactory_1.ExceptionFactory.createAssertionError("g._require.resolve: couldn't resolve the moudle path without virtualPath");
+		                    throw ExceptionFactory_1.ExceptionFactory.createAssertionError("g._require.resolve: couldn't resolve the module path without virtualPath");
 		                }
 		                resolvedPath = PathUtil_1.PathUtil.resolvePath(currentModule._virtualDirname, path);
 		            }
 		            else {
-		                if (!/^\.\//.test(path)) {
+		                if (/^\.\//.test(path)) {
+		                    resolvedPath = path.substring(2);
+		                }
+		                else if (/^\//.test(path)) {
+		                    resolvedPath = path.substring(1);
+		                }
+		                else {
 		                    throw ExceptionFactory_1.ExceptionFactory.createAssertionError("g._require.resolve: entry point path must start with './'");
 		                }
-		                resolvedPath = path.substring(2);
 		            }
 		            // 2.a. LOAD_AS_FILE(Y + X)
 		            var targetPath = this._resolveAbsolutePathAsFile(resolvedPath, liveAssetVirtualPathTable);
@@ -9436,6 +9783,7 @@
 		        else {
 		            // 3. LOAD_NODE_MODULES(X, dirname(Y))
 		            // akashic-engine独自仕様: 対象の `path` が `moduleMainScripts` に指定されていたらそちらを返す
+		            // moduleMainScripts は将来的に非推奨となるが、後方互換性のため moduleMainScripts が存在すれば moduleMainScripts を優先する
 		            if (moduleMainScripts[path]) {
 		                return moduleMainScripts[path];
 		            }
@@ -9503,6 +9851,10 @@
 		    ModuleManager.prototype._resolveAbsolutePathAsDirectory = function (resolvedPath, liveAssetPathTable) {
 		        var path = resolvedPath + "/package.json";
 		        var asset = liveAssetPathTable[path];
+		        var moduleMainPaths = this._assetManager._moduleMainPaths;
+		        if (moduleMainPaths && moduleMainPaths[path]) {
+		            return moduleMainPaths[path];
+		        }
 		        // liveAssetPathTable[path] != null だけではpathと同名のprototypeプロパティがある場合trueになってしまうので hasOwnProperty() を利用
 		        if (liveAssetPathTable.hasOwnProperty(path) && asset.type === "text") {
 		            var pkg = JSON.parse(asset.data);
@@ -9618,7 +9970,7 @@
 		};
 		Object.defineProperty(OperationPluginManager, "__esModule", { value: true });
 		OperationPluginManager.OperationPluginManager = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		/**
 		 * 操作プラグインからの通知をハンドルするクラス。
 		 * 本クラスのインスタンスをゲーム開発者が直接生成することはなく、ゲーム開発者が利用する必要もない。
@@ -9632,7 +9984,7 @@
 		    }
 		    OperationHandler.prototype.onOperation = function (op) {
 		        var iop;
-		        if (op instanceof Array) {
+		        if (Array.isArray(op)) {
 		            iop = { _code: this._code, data: op };
 		        }
 		        else {
@@ -9820,13 +10172,13 @@
 		        this._currentPoints++;
 		        // NOTE: 優先度は機械的にJoinedをつけておく。Joinしていない限りPointDownEventなどはリジェクトされる。
 		        var ret = [
-		            33 /* pl.EventCode.PointDown */,
-		            2 /* EventPriority.Joined */,
-		            this._playerId,
-		            e.identifier,
-		            point.x,
-		            point.y,
-		            targetId,
+		            33 /* pl.EventCode.PointDown */, // 0: イベントコード
+		            2 /* EventPriority.Joined */, //   1: 優先度
+		            this._playerId, //         2: プレイヤーID
+		            e.identifier, //           3: ポインターID
+		            point.x, //                4: X座標
+		            point.y, //                5: Y座標
+		            targetId, //               6?: エンティティID
 		            e.button //                7?: ボタンの種類
 		        ];
 		        if (source && source.local)
@@ -9841,17 +10193,17 @@
 		        var start = { x: 0, y: 0 };
 		        this._pointMoveAndUp(holder, e.offset, prev, start);
 		        var ret = [
-		            34 /* pl.EventCode.PointMove */,
-		            2 /* EventPriority.Joined */,
-		            this._playerId,
-		            e.identifier,
-		            holder.point.x,
-		            holder.point.y,
-		            start.x,
-		            start.y,
-		            prev.x,
-		            prev.y,
-		            holder.targetId,
+		            34 /* pl.EventCode.PointMove */, // 0: イベントコード
+		            2 /* EventPriority.Joined */, //   1: 優先度
+		            this._playerId, //         2: プレイヤーID
+		            e.identifier, //           3: ポインターID
+		            holder.point.x, //         4: X座標
+		            holder.point.y, //         5: Y座標
+		            start.x, //                6: ポイントダウンイベントからのX座標の差
+		            start.y, //                7: ポイントダウンイベントからのY座標の差
+		            prev.x, //                 8: 直前のポイントムーブイベントからのX座標の差
+		            prev.y, //                 9: 直前のポイントムーブイベントからのY座標の差
+		            holder.targetId, //        10?: エンティティID
 		            e.button //                11?: ボタンの種類
 		        ];
 		        if (holder.local)
@@ -9868,17 +10220,17 @@
 		        delete this._pointEventMap[e.identifier];
 		        this._currentPoints--;
 		        var ret = [
-		            35 /* pl.EventCode.PointUp */,
-		            2 /* EventPriority.Joined */,
-		            this._playerId,
-		            e.identifier,
-		            holder.point.x,
-		            holder.point.y,
-		            start.x,
-		            start.y,
-		            prev.x,
-		            prev.y,
-		            holder.targetId,
+		            35 /* pl.EventCode.PointUp */, // 0: イベントコード
+		            2 /* EventPriority.Joined */, // 1: 優先度
+		            this._playerId, //       2: プレイヤーID
+		            e.identifier, //         3: ポインターID
+		            holder.point.x, //       4: X座標
+		            holder.point.y, //       5: Y座標
+		            start.x, //              6: ポイントダウンイベントからのX座標の差
+		            start.y, //              7: ポイントダウンイベントからのY座標の差
+		            prev.x, //               8: 直前のポイントムーブイベントからのX座標の差
+		            prev.y, //               9: 直前のポイントムーブイベントからのY座標の差
+		            holder.targetId, //      10?: エンティティID
 		            e.button //              11?: ボタンの種類
 		        ];
 		        if (holder.local)
@@ -10297,18 +10649,19 @@
 		hasRequiredGame = 1;
 		Object.defineProperty(Game, "__esModule", { value: true });
 		Game.Game = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
+		var AssetAccessor_1 = requireAssetAccessor();
 		var AssetManager_1 = requireAssetManager();
 		var AudioSystemManager_1 = requireAudioSystemManager();
 		var DefaultLoadingScene_1 = requireDefaultLoadingScene();
 		var DefaultSkippingScene_1 = requireDefaultSkippingScene();
 		var EventConverter_1 = requireEventConverter();
 		var ExceptionFactory_1 = requireExceptionFactory$2();
+		var InitialScene_1 = requireInitialScene();
 		var LoadingScene_1 = requireLoadingScene();
 		var ModuleManager_1 = requireModuleManager();
 		var OperationPluginManager_1 = requireOperationPluginManager();
 		var PointEventResolver_1 = requirePointEventResolver();
-		var Scene_1 = requireScene();
 		var SurfaceAtlasSet_1 = requireSurfaceAtlasSet();
 		var WeakRefKVS_1 = requireWeakRefKVS();
 		var XorshiftRandomGenerator_1 = requireXorshiftRandomGenerator();
@@ -10424,8 +10777,9 @@
 		        if (Array.isArray(gameConfiguration.assets)) {
 		            throw new Error("Game#constructor: array type of configuration.assets is not yet supported");
 		        }
-		        this._assetManager = new AssetManager_1.AssetManager(this, gameConfiguration.assets, gameConfiguration.audio, gameConfiguration.moduleMainScripts);
+		        this._assetManager = new AssetManager_1.AssetManager(this, gameConfiguration.assets, gameConfiguration.audio, gameConfiguration.moduleMainScripts, gameConfiguration.moduleMainPaths);
 		        this._moduleManager = undefined;
+		        this.asset = new AssetAccessor_1.AssetAccessor(this._assetManager);
 		        this.operationPluginManager = new OperationPluginManager_1.OperationPluginManager(this, param.operationPluginViewInfo || null);
 		        this._onOperationPluginOperated = new trigger_1.Trigger();
 		        this._operationPluginOperated = this._onOperationPluginOperated;
@@ -10435,13 +10789,13 @@
 		        this._onSceneChange.add(this._handleSceneChanged, this);
 		        this._sceneChanged = this._onSceneChange;
 		        this.onUpdate = new trigger_1.Trigger();
-		        this._initialScene = new Scene_1.Scene({
+		        this._initialScene = new InitialScene_1.InitialScene({
 		            game: this,
 		            assetIds: this._assetManager.globalAssetIds(),
 		            local: true,
 		            name: "akashic:initial-scene"
 		        });
-		        this._initialScene.onLoad.add(this._handleInitialSceneLoad, this);
+		        this._initialScene.onAllAssetsLoad.add(this._handleInitialSceneLoad, this);
 		        this._reset({ age: 0 });
 		    }
 		    Object.defineProperty(Game.prototype, "focusingCamera", {
@@ -11169,6 +11523,7 @@
 		        this._mainParameter = undefined;
 		        this._assetManager.destroy();
 		        this._assetManager = undefined;
+		        this.asset = undefined;
 		        this._eventConverter = undefined;
 		        this._pointEventResolver = undefined;
 		        this.operationPluginManager = undefined;
@@ -11399,7 +11754,7 @@
 		            if (nextScene && nextScene._needsLoading() && nextScene._loadingState !== "loaded-fired") {
 		                var loadingScene = nextScene._waitingPrepare
 		                    ? this._createPreparingLoadingScene(nextScene, nextScene._waitingPrepare, "akashic:preparing-".concat(nextScene.name))
-		                    : (_a = this.loadingScene) !== null && _a !== void 0 ? _a : this._defaultLoadingScene;
+		                    : ((_a = this.loadingScene) !== null && _a !== void 0 ? _a : this._defaultLoadingScene);
 		                this._doPushScene(loadingScene, true, this._defaultLoadingScene);
 		                loadingScene.reset(nextScene);
 		            }
@@ -11424,12 +11779,12 @@
 		            }
 		        }
 		        this.operationPlugins = this.operationPluginManager.plugins;
-		        var preloadAssetIds = this._assetManager.preloadScriptAssetIds();
-		        for (var _a = 0, preloadAssetIds_1 = preloadAssetIds; _a < preloadAssetIds_1.length; _a++) {
-		            var preloadAssetId = preloadAssetIds_1[_a];
-		            var fun = this._moduleManager._internalRequire(preloadAssetId);
+		        var preloadAssetPaths = this._assetManager.preloadScriptAssetPaths();
+		        for (var _a = 0, preloadAssetPaths_1 = preloadAssetPaths; _a < preloadAssetPaths_1.length; _a++) {
+		            var preloadAssetPath = preloadAssetPaths_1[_a];
+		            var fun = this._moduleManager._internalRequire(preloadAssetPath);
 		            if (!fun || typeof fun !== "function")
-		                throw ExceptionFactory_1.ExceptionFactory.createAssertionError("Game#_handleLoad: ".concat(preloadAssetId, " has no-exported function."));
+		                throw ExceptionFactory_1.ExceptionFactory.createAssertionError("Game#_handleLoad: ".concat(preloadAssetPath, " has no-exported function."));
 		            fun();
 		        }
 		        if (this._mainFunc) {
@@ -11546,8 +11901,8 @@
 			};
 			Object.defineProperty(exports, "__esModule", { value: true });
 			exports.PathUtil = exports.VideoSystem = exports.ShaderProgram = exports.Module = exports.AudioSystem = void 0;
+			__exportStar(requireLib$4(), exports);
 			__exportStar(requireLib$3(), exports);
-			__exportStar(requireCjs(), exports);
 			// pdi-types 由来の型を g 直下から reexport する。
 			// ただし一部の型名は、akashic-engine で同名のクラス実装を与えているため、
 			// そのままでは両方 export しようとして衝突する。
@@ -11571,6 +11926,7 @@
 			__exportStar(requireLabel(), exports);
 			__exportStar(requirePane(), exports);
 			__exportStar(requireSprite(), exports);
+			__exportStar(requireErrors(), exports);
 			__exportStar(requireAssetAccessor(), exports);
 			__exportStar(requireAssetGenerationConfiguration(), exports);
 			__exportStar(requireAssetHolder(), exports);
@@ -11599,6 +11955,7 @@
 			__exportStar(requireExceptionFactory$2(), exports);
 			__exportStar(requireFont(), exports);
 			__exportStar(requireGameMainParameterObject(), exports);
+			__exportStar(requireInitialScene(), exports);
 			__exportStar(requireInternalOperationPluginInfo(), exports);
 			__exportStar(requireLoadingScene(), exports);
 			__exportStar(requireLocalTickModeString(), exports);
@@ -11659,7 +12016,7 @@
 	var hasRequiredLib$1;
 
 	function requireLib$1 () {
-		if (hasRequiredLib$1) return lib$3;
+		if (hasRequiredLib$1) return lib$4;
 		hasRequiredLib$1 = 1;
 		(function (exports) {
 			var __createBinding = (commonjsGlobal && commonjsGlobal.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -11680,8 +12037,8 @@
 			__exportStar(requireIndex_common(), exports);
 			__exportStar(requireGameHandlerSet$1(), exports); // NOTE: コンテンツから参照する必要はない
 			
-		} (lib$3));
-		return lib$3;
+		} (lib$4));
+		return lib$4;
 	}
 
 	var akashicEngine;
@@ -11956,7 +12313,7 @@
 		hasRequiredAsset$2 = 1;
 		Object.defineProperty(Asset$2, "__esModule", { value: true });
 		Asset$2.Asset = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var Asset = /** @class */ (function () {
 		    function Asset(id, path) {
 		        this.onDestroyed = new trigger_1.Trigger();
@@ -13025,7 +13382,7 @@
 		hasRequiredAsset$1 = 1;
 		Object.defineProperty(Asset$1, "__esModule", { value: true });
 		Asset$1.Asset = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		/**
 		 * 各種リソースを表すクラス。
 		 * 本クラスのインスタンスをゲーム開発者が直接生成することはない。
@@ -13162,7 +13519,7 @@
 		hasRequiredAudioPlayer$1 = 1;
 		Object.defineProperty(AudioPlayer$1, "__esModule", { value: true });
 		AudioPlayer$1.AudioPlayer = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		/**
 		 * サウンド再生を行うクラス。
 		 *
@@ -13884,7 +14241,7 @@
 		hasRequiredVideoPlayer = 1;
 		Object.defineProperty(VideoPlayer, "__esModule", { value: true });
 		VideoPlayer.VideoPlayer = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		/**
 		 * ビデオ再生を行うクラス。
 		 *
@@ -14174,7 +14531,7 @@
 		hasRequiredHTMLVideoPlayer = 1;
 		Object.defineProperty(HTMLVideoPlayer, "__esModule", { value: true });
 		HTMLVideoPlayer.HTMLVideoPlayer = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var HTMLVideoPlayer$1 = /** @class */ (function () {
 		    function HTMLVideoPlayer(loop) {
 		        this._loop = !!loop;
@@ -14429,7 +14786,7 @@
 		hasRequiredInputEventHandler = 1;
 		Object.defineProperty(InputEventHandler, "__esModule", { value: true });
 		InputEventHandler.preventEventDefault = InputEventHandler.InputEventHandler = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		/**
 		 * 入力ハンドラ。
 		 *
@@ -14457,6 +14814,12 @@
 		        this._yScale = yScale;
 		    };
 		    InputEventHandler.prototype.pointDown = function (identifier, pagePosition, button) {
+		        // chrome で view の境界部分をクリックした際にポイント座標が view の外の座標となることがあるため、view 外の座標の場合は除外する
+		        if (pagePosition.offsetX < 0
+		            || pagePosition.offsetY < 0
+		            || pagePosition.offsetX > this.inputView.offsetWidth
+		            || pagePosition.offsetY > this.inputView.offsetHeight)
+		            return;
 		        this.pointTrigger.fire({
 		            type: 0 /* PlatformPointType.Down */,
 		            identifier: identifier,
@@ -14746,7 +15109,7 @@
 		hasRequiredInputHandlerLayer = 1;
 		Object.defineProperty(InputHandlerLayer, "__esModule", { value: true });
 		InputHandlerLayer.InputHandlerLayer = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var MouseTouchEventHandler_1 = requireMouseTouchEventHandler();
 		var PointerEventHandler_1 = requirePointerEventHandler();
 		/**
@@ -14821,7 +15184,7 @@
 		hasRequiredContainerController = 1;
 		Object.defineProperty(ContainerController, "__esModule", { value: true });
 		ContainerController.ContainerController = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var InputHandlerLayer_1 = requireInputHandlerLayer();
 		/*
 		 HTML要素のContainerを管理するクラス。
@@ -14840,6 +15203,8 @@
 		        this.surface = undefined;
 		        this.inputHandlerLayer = undefined;
 		        this.rootView = undefined;
+		        // Canvas 要素のサイズ変更に追従するための Observer
+		        this.observer = undefined;
 		        /**
 		         * ゲームコンテンツのCanvas拡大・縮小時に内部のコンテキスト領域のリサイズを行うかどうか。初期値はfalse。
 		         * Note: この機能は実験的なものです。特定の環境や実行状態によっては正常な描画が期待できない場合もあります。
@@ -14901,6 +15266,7 @@
 		        this.inputHandlerLayer.setViewTabIndex(tabIndex);
 		    };
 		    ContainerController.prototype._loadView = function () {
+		        var _this = this;
 		        var _a = this._rendererReq, width = _a.primarySurfaceWidth, height = _a.primarySurfaceHeight;
 		        // DocumentFragmentはinsertした時点で開放されているため毎回作る
 		        // https://dom.spec.whatwg.org/#concept-node-insert
@@ -14916,11 +15282,20 @@
 		            if (this.surface && !this.surface.destroyed()) {
 		                this.inputHandlerLayer.view.removeChild(this.surface.canvas);
 		                this.surface.destroy();
+		                // メモリリーク防止のため、過去の Canvas に対する Observer を削除しておく
+		                this.observer.disconnect();
 		            }
 		        }
 		        // 入力受け付けレイヤー > 描画レイヤー
 		        this.surface = this.resourceFactory.createPrimarySurface(width, height);
-		        this.inputHandlerLayer.view.appendChild(this.surface.getHTMLElement());
+		        var surfaceElement = this.surface.getHTMLElement();
+		        // Canvasの親要素のwidthとheightは範囲外判定で使用するため、Canvasに追従できるようにする必要がある
+		        this.observer = new MutationObserver(function () {
+		            _this.inputHandlerLayer.view.style.width = surfaceElement.offsetWidth + "px";
+		            _this.inputHandlerLayer.view.style.height = surfaceElement.offsetHeight + "px";
+		        });
+		        this.observer.observe(surfaceElement, { attributeFilter: ["width", "height", "style"] });
+		        this.inputHandlerLayer.view.appendChild(surfaceElement);
 		        // containerController -> input -> canvas
 		        this.container.appendChild(this.inputHandlerLayer.view);
 		    };
@@ -15301,11 +15676,31 @@
 		    }
 		    RenderingHelper.clamp = clamp;
 		    function usedWebGL(rendererCandidates) {
-		        var used = false;
-		        if (rendererCandidates && (0 < rendererCandidates.length)) {
-		            used = (rendererCandidates[0] === "webgl");
+		        var _a;
+		        if (!rendererCandidates || rendererCandidates.length === 0) {
+		            return false;
 		        }
-		        return used;
+		        var candidate = rendererCandidates[0];
+		        if (typeof candidate === "string") {
+		            if (candidate === "webgl") {
+		                return {
+		                    type: "webgl",
+		                    options: {
+		                        enableDepthBuffer: false
+		                    }
+		                };
+		            }
+		        }
+		        else if (candidate.type === "webgl") {
+		            var webglRendererCandidate = candidate;
+		            return {
+		                type: "webgl",
+		                options: {
+		                    enableDepthBuffer: !!((_a = webglRendererCandidate.options) === null || _a === void 0 ? void 0 : _a.enableDepthBuffer)
+		                }
+		            };
+		        }
+		        return false;
 		    }
 		    RenderingHelper.usedWebGL = usedWebGL;
 		})(RenderingHelper$1 || (RenderingHelper.RenderingHelper = RenderingHelper$1 = {}));
@@ -16459,7 +16854,7 @@
 		var WebGLShaderProgram_1 = requireWebGLShaderProgram();
 		var WebGLTextureAtlas_1 = requireWebGLTextureAtlas();
 		var WebGLSharedObject$1 = /** @class */ (function () {
-		    function WebGLSharedObject(width, height) {
+		    function WebGLSharedObject(params) {
 		        this._renderTarget = undefined;
 		        this._defaultShaderProgram = undefined;
 		        this._textureAtlas = undefined;
@@ -16477,11 +16872,15 @@
 		        this._currentShaderProgram = undefined;
 		        this._compositeOps = undefined;
 		        this._deleteRequestedTargets = undefined;
+		        var width = params.width;
+		        var height = params.height;
+		        var enableDepthBuffer = !!params.enableDepthBuffer;
 		        var surface = new WebGLPrimarySurface_1.WebGLPrimarySurface(this, width, height);
-		        var context = surface.canvas.getContext("webgl", { depth: false, preserveDrawingBuffer: true });
+		        var context = surface.canvas.getContext("webgl", { depth: enableDepthBuffer, preserveDrawingBuffer: true });
 		        if (!context) {
 		            throw new Error("WebGLSharedObject#constructor: could not initialize WebGLRenderingContext");
 		        }
+		        this._enableDepthBuffer = enableDepthBuffer;
 		        this._surface = surface;
 		        this._context = context;
 		        this._init();
@@ -16522,6 +16921,12 @@
 		        this._currentShaderProgram.updateUniforms();
 		    };
 		    WebGLSharedObject.prototype.clear = function () {
+		        if (this._enableDepthBuffer) {
+		            this._context.depthMask(true); // NOTE: 既存の描画に影響を与えないよう、クリア時のみ有効にする
+		            this._context.clear(this._context.COLOR_BUFFER_BIT | this._context.DEPTH_BUFFER_BIT);
+		            this._context.depthMask(false);
+		            return;
+		        }
 		        this._context.clear(this._context.COLOR_BUFFER_BIT);
 		    };
 		    WebGLSharedObject.prototype.draw = function (state, surfaceTexture, offsetX, offsetY, width, height, canvasOffsetX, canvasOffsetY, color) {
@@ -16894,9 +17299,10 @@
 		        this._disposer = new CanvasDisposer_1.CanvasDisposer();
 		    }
 		    SurfaceFactory.prototype.createPrimarySurface = function (width, height, rendererCandidates) {
-		        if (RenderingHelper_1.RenderingHelper.usedWebGL(rendererCandidates)) {
+		        var usedWebGL = RenderingHelper_1.RenderingHelper.usedWebGL(rendererCandidates);
+		        if (usedWebGL) {
 		            if (!this._shared) {
-		                this._shared = new WebGLSharedObject_1.WebGLSharedObject(width, height);
+		                this._shared = new WebGLSharedObject_1.WebGLSharedObject({ width: width, height: height, enableDepthBuffer: usedWebGL.options.enableDepthBuffer });
 		            }
 		            return this._shared.getPrimarySurface();
 		        }
@@ -17458,7 +17864,7 @@
 		hasRequiredAudioPlayer = 1;
 		Object.defineProperty(AudioPlayer, "__esModule", { value: true });
 		AudioPlayer.AudioPlayer = void 0;
-		var trigger_1 = requireCjs();
+		var trigger_1 = requireLib$3();
 		var AudioPlayer$1 = /** @class */ (function () {
 		    function AudioPlayer(system) {
 		        this.onPlay = new trigger_1.Trigger();
@@ -17616,6 +18022,7 @@
 		        _this._audioInstance = null;
 		        _this._isWaitingPlayEvent = false;
 		        _this._isStopRequested = false;
+		        _this._assetLoop = false;
 		        _this._manager = manager;
 		        _this._endedEventHandler = function () {
 		            _this._onAudioEnded();
@@ -17627,18 +18034,27 @@
 		        return _this;
 		    }
 		    HTMLAudioPlayer.prototype.play = function (asset) {
-		        var _a;
+		        var _a, _b;
 		        if (this.currentAudio) {
+		            if (asset.id === this.currentAudio.id) {
+		                // 同じ audio を 連続で再生するとエラーとなる。これは audio.play() が非同期で開始されるためである。
+		                // 現在再生中とこれから再生しようとする audio が同じ場合は現在の audio を先頭から再生し、これから再生しようとする audio は何もしないようにする。
+		                _super.prototype.stop.call(this);
+		                this._audioInstance.currentTime = ((_a = asset.offset) !== null && _a !== void 0 ? _a : 0) / 1000;
+		                _super.prototype.play.call(this, asset);
+		                return;
+		            }
 		            this.stop();
 		        }
 		        var audio = asset.cloneElement();
+		        this._assetLoop = asset.loop;
 		        if (audio) {
 		            if (!asset.offset) {
 		                // offsetが指定されていない場合、durationを無視して全体再生する
 		                audio.loop = asset.loop;
 		            }
 		            else {
-		                var offsetSec_1 = ((_a = asset.offset) !== null && _a !== void 0 ? _a : 0) / 1000;
+		                var offsetSec_1 = ((_b = asset.offset) !== null && _b !== void 0 ? _b : 0) / 1000;
 		                var durationEndSec_1 = asset.duration / 1000 + offsetSec_1;
 		                audio.currentTime = offsetSec_1;
 		                audio.ontimeupdate = function () {
@@ -17709,8 +18125,10 @@
 		        }
 		    };
 		    HTMLAudioPlayer.prototype._onAudioEnded = function () {
-		        this._clearEndedEventHandler();
-		        _super.prototype.stop.call(this);
+		        if (!this._assetLoop) {
+		            this._clearEndedEventHandler();
+		            _super.prototype.stop.call(this);
+		        }
 		    };
 		    HTMLAudioPlayer.prototype._clearEndedEventHandler = function () {
 		        if (this._audioInstance)
