@@ -1,9 +1,10 @@
-import { InjectionKey, onUnmounted, reactive } from "vue";
+import type { InjectionKey } from "vue";
+import { onUnmounted, reactive } from "vue";
 import versions from "~/constants/versions.json" assert { type: "json" };
-import { GameConfiguration } from "~/types/AkashicEngineStandalone";
-import { ConsoleValue } from "~/types/ConsoleValue";
-import { PseudoFile } from "~/types/PseudoFile";
-import { AkashicEngineVersion } from "~/types/versions";
+import type { GameConfiguration } from "~/types/AkashicEngineStandalone";
+import type { ConsoleValue } from "~/types/ConsoleValue";
+import type { PseudoFile } from "~/types/PseudoFile";
+import type { AkashicEngineVersion } from "~/types/versions";
 
 export const useGameContextKey: InjectionKey<UseGameContextStore> = Symbol("useGameContext");
 
@@ -22,8 +23,8 @@ interface State {
 	stop: () => void;
 }
 
-export function useGameContext() {
-	const addConsole = ({ type, name, message }: ConsoleValue) => {
+export function useGameContext(): State {
+	const addConsole = ({ type, name, message }: ConsoleValue): void => {
 		state.consoleValues.unshift({
 			type,
 			name,
@@ -31,14 +32,14 @@ export function useGameContext() {
 		});
 	};
 
-	function handleError(err: ErrorEvent) {
+	function handleError(err: ErrorEvent): void {
 		addConsole({
 			type: "error",
 			name: err.toString(),
 			message: err.message
 		});
 	}
-	function handleUnhandledrejection(err: PromiseRejectionEvent) {
+	function handleUnhandledrejection(err: PromiseRejectionEvent): void {
 		addConsole({
 			type: "error",
 			name: err.toString(),
@@ -46,7 +47,7 @@ export function useGameContext() {
 		});
 	}
 
-	const handleErrors = (global: any) => {
+	const handleErrors = (global: any): void => {
 		// FIXME:
 		// Vue.config.errorHandler = err => {
 		// 	addConsole({
@@ -62,7 +63,7 @@ export function useGameContext() {
 		window.addEventListener("unhandledrejection", handleUnhandledrejection);
 	};
 
-	const clearConsole = () => {
+	const clearConsole = (): void => {
 		state.consoleValues.splice(0, state.consoleValues.length);
 		state.consoleValues.push({
 			type: "info",
@@ -71,13 +72,13 @@ export function useGameContext() {
 		});
 	};
 
-	const setCanvas = (canvas: HTMLCanvasElement | null) => {
+	const setCanvas = (canvas: HTMLCanvasElement | null): void => {
 		state.canvas = canvas;
 	};
 
 	let finalize: Function | null = null;
 
-	const run = async (gameJSON: GameConfiguration, pseudoFiles: PseudoFile[], assetBase: string | null) => {
+	const run = async (gameJSON: GameConfiguration, pseudoFiles: PseudoFile[], assetBase: string | null): Promise<void> => {
 		console.log("game.json", gameJSON);
 
 		if (!gameJSON) {
@@ -121,7 +122,7 @@ export function useGameContext() {
 		state.running = true;
 	};
 
-	const stop = () => {
+	const stop = (): void => {
 		if (finalize) {
 			finalize();
 			finalize = null;
