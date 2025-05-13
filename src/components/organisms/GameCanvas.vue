@@ -42,7 +42,7 @@ interface Props {
 const props = defineProps<Props>();
 const scalableRef = ref<HTMLDivElement>();
 
-const adjust = () => {
+const adjust = (): void => {
 	if (!scalableRef.value) return;
 	const elem = window.document.body;
 	const dom = scalableRef.value;

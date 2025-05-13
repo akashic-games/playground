@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<Props>(), {
 const gameConfs = useGameJSONResolver();
 provide(useGameJSONResolverKey, gameConfs);
 provide(useGameContextKey, useGameContext());
-gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri);
+gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri).catch(e => console.log(e));
 </script>
 
 <style lang="scss" scoped>

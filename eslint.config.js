@@ -1,3 +1,4 @@
+const eslintConfig = require("@akashic/eslint-config");
 const eslintConfigPrettier = require("eslint-config-prettier");
 const storybook = require("eslint-plugin-storybook");
 const unuserdPlugin = require("eslint-plugin-unused-imports");
@@ -7,6 +8,7 @@ const globals = require("globals");
 
 module.exports = [
   importPlugin.flatConfigs.recommended,
+  ...eslintConfig,
   eslintConfigPrettier,
   ...storybook.configs["flat/recommended"],
   {
@@ -17,6 +19,8 @@ module.exports = [
       ecmaVersion: 2020,
       parserOptions: {
         parser: "@typescript-eslint/parser",
+        project: ["./tsconfig.json"],
+        extraFileExtensions: ["vue"],
         ecmaFeatures: {
           jsx: true
         }
@@ -43,8 +47,7 @@ module.exports = [
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "off" // TODO: 誤検知のため一旦 off
-      ],
-      "import/no-unresolved": "off"
+      ]
     }
   }
 ];

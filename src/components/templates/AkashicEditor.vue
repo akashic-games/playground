@@ -48,9 +48,11 @@ import ImageViewer from "~/components/molecules/ImageViewer.vue";
 import CodeEditor from "~/components/organisms/CodeEditor.vue";
 import { useCodeEditor, useCodeEditorKey } from "~/composables/useCodeEditor";
 import { useExtraLibsResolver } from "~/composables/useExtraLibsResolver";
-import { useGameContextKey, UseGameContextStore } from "~/composables/useGameContext";
-import { useGameJSONResolverKey, UseGameJSONResolverStore } from "~/composables/useGameJSONResolver";
-import { PseudoFile } from "~/types/PseudoFile";
+import type { UseGameContextStore } from "~/composables/useGameContext";
+import { useGameContextKey } from "~/composables/useGameContext";
+import type { UseGameJSONResolverStore } from "~/composables/useGameJSONResolver";
+import { useGameJSONResolverKey } from "~/composables/useGameJSONResolver";
+import type { PseudoFile } from "~/types/PseudoFile";
 
 interface State {
 	currentPseudoFile: PseudoFile | null;
@@ -75,7 +77,7 @@ watch(
 		if (!dependencies.length) return;
 		const extLibsResolver = useExtraLibsResolver();
 		const uris = extLibsResolver.getExtraLibUris(gameContext.currentVersion, dependencies);
-		extLibsResolver.fetchExtraLibsFromUris(uris);
+		extLibsResolver.fetchExtraLibsFromUris(uris).catch(e => console.log(e));
 		watch(
 			() => extLibsResolver.extraLibs,
 			extraLibs => {
@@ -98,7 +100,7 @@ watch(
 	}
 );
 
-const handleCurrentPseudoFileChanged = (uri: string | null) => {
+const handleCurrentPseudoFileChanged = (uri: string | null): void => {
 	const file = gameConfs.pseudoFiles.find(f => f.uri === uri);
 	if (!file) return;
 	if (file.editorType === "text") {

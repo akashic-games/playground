@@ -70,10 +70,11 @@
 
 <script setup lang="ts">
 import { reactive, watch } from "vue";
-import TreeNodeList, { TreeNodeItem } from "~/components/atoms/TreeNodeList.vue";
+import type { TreeNodeItem } from "~/components/atoms/TreeNodeList.vue";
+import TreeNodeList from "~/components/atoms/TreeNodeList.vue";
 import MediaQuerySelector from "~/components/molecules/MediaQuerySelector.vue";
-import { PseudoFile } from "~/types/PseudoFile";
-import { TreeNode } from "~/types/TreeNode";
+import type { PseudoFile } from "~/types/PseudoFile";
+import type { TreeNode } from "~/types/TreeNode";
 import { buildTreeNode, compareNodes } from "~/utils/buildTreeNode";
 
 interface Props {
@@ -101,16 +102,16 @@ const state = reactive<State>({
 // FIXME: ハードコーディングやめる
 const breakpoint = 960;
 
-const getPseudoFileByPath = (path: string) => {
+const getPseudoFileByPath = (path: string): PseudoFile | undefined => {
 	return props.pseudoFiles.find(pseudoFile => pseudoFile.path === path);
 };
 
-const handleCurrentPseudoFileChanged = (path: string) => {
+const handleCurrentPseudoFileChanged = (path: string): void => {
 	const file = getPseudoFileByPath(path);
 	props.onCurrentPseudoFileChange(file?.uri ?? null);
 };
 
-const compareFunc = (a: TreeNode, b: TreeNode) => {
+const compareFunc = (a: TreeNode, b: TreeNode): number => {
 	// game.json は先頭に持ってくる
 	if (a.path === "game.json") {
 		return -1;

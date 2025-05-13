@@ -14,8 +14,10 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from "vue";
 import GameCanvas, { getCanvasElement } from "~/components/organisms/GameCanvas.vue";
-import { useGameContextKey, UseGameContextStore } from "~/composables/useGameContext";
-import { useGameJSONResolverKey, UseGameJSONResolverStore } from "~/composables/useGameJSONResolver";
+import type { UseGameContextStore } from "~/composables/useGameContext";
+import { useGameContextKey } from "~/composables/useGameContext";
+import type { UseGameJSONResolverStore } from "~/composables/useGameJSONResolver";
+import { useGameJSONResolverKey } from "~/composables/useGameJSONResolver";
 
 const gameConfs = inject(useGameJSONResolverKey) as UseGameJSONResolverStore;
 const gameContext = inject(useGameContextKey) as UseGameContextStore;
@@ -26,7 +28,7 @@ onMounted(() => {
 	gameContext.setCanvas(canvas);
 });
 
-const run = () => {
+const run = (): void => {
 	// TODO: 重複ロジック
 	const gameJSON = gameConfs.pseudoFiles.find(({ assetType }) => assetType === "game.json");
 	gameContext.run(
@@ -36,11 +38,11 @@ const run = () => {
 	);
 };
 
-const stop = () => {
+const stop = (): void => {
 	gameContext.stop();
 };
 
-const reload = () => {
+const reload = (): void => {
 	run();
 };
 </script>

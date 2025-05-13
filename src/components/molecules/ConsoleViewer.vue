@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { ConsoleValue } from "~/types/ConsoleValue";
+import type { ConsoleValue } from "~/types/ConsoleValue";
 
 interface Props {
 	values: ConsoleValue[];

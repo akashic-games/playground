@@ -64,8 +64,7 @@ const gameConfs = useGameJSONResolver();
 const gameContext = useGameContext();
 provide(useGameJSONResolverKey, gameConfs);
 provide(useGameContextKey, gameContext);
-
-gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri);
+gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri).catch(e => console.log(e));
 
 const state = reactive<State>({
 	title: null,
