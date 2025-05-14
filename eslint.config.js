@@ -47,7 +47,8 @@ module.exports = [
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "off" // TODO: 誤検知のため一旦 off
-      ]
+      ],
+      "@typescript-eslint/explicit-function-return-type": "off"
     }
   }
 ];
