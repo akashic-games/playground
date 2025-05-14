@@ -1,4 +1,4 @@
-import { TreeNode } from "~/types/TreeNode";
+import type { TreeNode } from "~/types/TreeNode";
 
 /**
  * ディレクトリ -> ファイルの順でソートする簡易的な関数
@@ -48,7 +48,7 @@ export function buildTreeNode<T>(data: T[], key: keyof T, compareFunc: (a: TreeN
 	return root;
 }
 
-function sortTree(node: TreeNode, compareFunc: (a: TreeNode, b: TreeNode) => number) {
+function sortTree(node: TreeNode, compareFunc: (a: TreeNode, b: TreeNode) => number): void {
 	if (node.children.length <= 0) return;
 	node.children.sort(compareFunc);
 	for (const childNode of node.children) {

@@ -1,8 +1,8 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { useGameJSONResolver } from "~/composables/useGameJSONResolver";
-import { GameConfiguration } from "~/types/AkashicEngineStandalone";
-import {
+import type { GameConfiguration } from "~/types/AkashicEngineStandalone";
+import type {
 	PseudoAudioAssetFile,
 	PseudoBinaryAssetFile,
 	PseudoGameJSONFile,

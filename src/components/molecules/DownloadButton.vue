@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 import BaseButton from "~/components/atoms/BaseButton.vue";
-import { PseudoFile } from "~/types/PseudoFile";
+import type { PseudoFile } from "~/types/PseudoFile";
 import { downloadAsZip } from "~/utils/downloadAsZip";
 
 interface Props {
@@ -32,7 +32,7 @@ const state = reactive<State>({
 
 const props = defineProps<Props>();
 
-const handleClickDownloadAsZip = async () => {
+const handleClickDownloadAsZip = async (): Promise<void> => {
 	if (state.processing) return;
 	state.processing = true;
 	await downloadAsZip(`${props.name}.zip`, props.pseudoFiles);

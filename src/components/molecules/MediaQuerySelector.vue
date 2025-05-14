@@ -18,7 +18,7 @@ const props = defineProps<Props>();
 const mediaQuery = window.matchMedia(`(min-width: ${props.breakpoint - 1}px)`);
 const isPC = ref(props.breakpoint <= window.innerWidth);
 
-const handleMediaQueryChanged = () => {
+const handleMediaQueryChanged = (): void => {
 	isPC.value = props.breakpoint <= window.innerWidth;
 };
 

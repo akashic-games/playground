@@ -36,7 +36,7 @@ const gameConfs = useGameJSONResolver();
 provide(useGameJSONResolverKey, gameConfs);
 provide(useGameContextKey, useGameContext());
 
-const download = async () => {
+const download = async (): Promise<void> => {
 	await downloadAsZip(props.name, gameConfs.pseudoFiles);
 };
 

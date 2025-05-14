@@ -11,7 +11,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'helloworld',
-									uri: 'https://akashic-games.github.io/demo/content/helloworld/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/basics/helloworld/game.json'
 								})
 							)
 						}
@@ -28,7 +28,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'oekaki',
-									uri: 'https://akashic-games.github.io/demo/content/oekaki/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/templates/oekaki/game.json'
 								})
 							)
 						}
@@ -45,7 +45,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'newtons-cradle',
-									uri: 'https://akashic-games.github.io/demo/content/newtons-cradle/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/physics/newtons-cradle/game.json'
 								})
 							)
 						},
@@ -63,7 +63,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'monban',
-									uri: 'https://akashic-games.github.io/demo/content/monban/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/templates/monban/game.json'
 								})
 							)
 						}
@@ -96,7 +96,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'helloworld',
-									uri: 'https://akashic-games.github.io/demo/content/helloworld/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/basics/helloworld/game.json'
 								})
 							)
 						},
@@ -116,7 +116,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'GalaxyWars',
-									uri: 'https://akashic-games.github.io/demo/content/GalaxyWars/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/templates/GalaxyWars/game.json'
 								})
 							)
 						},
@@ -136,7 +136,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'HoppingWitch',
-									uri: 'https://akashic-games.github.io/demo/content/HoppingWitch/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/templates/HoppingWitch/game.json'
 								})
 							)
 						},
@@ -157,7 +157,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'cannontv',
-									uri: 'https://akashic-games.github.io/demo/content/cannontv/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/templates/cannontv/game.json'
 								})
 							)
 						},
@@ -177,7 +177,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'kisoe-nariagari-dungeon',
-									uri: 'https://akashic-games.github.io/demo/content/kisoe-nariagari-dungeon/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/templates/kisoe-nariagari-dungeon/game.json'
 								})
 							)
 						},
@@ -200,7 +200,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'helloworld',
-									uri: 'https://akashic-games.github.io/demo/content/helloworld/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/basics/helloworld/game.json'
 								})
 							)
 						}
@@ -217,7 +217,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'helloworld',
-									uri: 'https://akashic-games.github.io/demo/content/helloworld/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/basics/helloworld/game.json'
 								})
 							)
 						},
@@ -237,7 +237,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'helloworld',
-									uri: 'https://akashic-games.github.io/demo/content/helloworld/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/basics/helloworld/game.json'
 								})
 							)
 						},
@@ -263,7 +263,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'helloworld',
-									uri: 'https://akashic-games.github.io/demo/content/helloworld/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/basics/helloworld/game.json'
 								})
 							)
 						}
@@ -281,7 +281,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'helloworld',
-									uri: 'https://akashic-games.github.io/demo/content/helloworld/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/basics/helloworld/game.json'
 								})
 							)
 						},
@@ -302,7 +302,7 @@
 								JSON.stringify({
 									type: 'gameJsonUri',
 									name: 'helloworld',
-									uri: 'https://akashic-games.github.io/demo/content/helloworld/game.json'
+									uri: 'https://akashic-contents.github.io/website-contents/demo/basics/helloworld/game.json'
 								})
 							)
 						},

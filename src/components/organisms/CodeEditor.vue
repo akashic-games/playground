@@ -5,7 +5,8 @@
 <script setup lang="ts">
 import * as monaco from "monaco-editor";
 import { inject, onMounted, onUnmounted, ref, watch } from "vue";
-import { useCodeEditorKey, UseCodeEditorStore } from "~/composables/useCodeEditor";
+import type { UseCodeEditorStore } from "~/composables/useCodeEditor";
+import { useCodeEditorKey } from "~/composables/useCodeEditor";
 
 interface Props {
 	handleValueChanged?: (value: string) => void;

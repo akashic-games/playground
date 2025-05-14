@@ -67,7 +67,7 @@ const state = reactive<State>({
 	processingAsZip: false
 });
 
-const handleClickOverlay = async () => {
+const handleClickOverlay = async (): Promise<void> => {
 	await gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri);
 	// TODO: 重複ロジック
 	const gameJSON = gameConfs.pseudoFiles.find(({ assetType }) => assetType === "game.json");
@@ -81,12 +81,13 @@ const handleClickOverlay = async () => {
 	state.ready = true;
 };
 
-const changeCurrentPageTab = (name: string) => {
+const changeCurrentPageTab = (name: string): void => {
 	state.currentPageTabName = name;
 };
 
 if (props.autoplay) {
-	handleClickOverlay();
+	// FIXME: await を付けた場合、実行時にページが真っ白で表示されなくなる。
+	handleClickOverlay().catch(e => console.error(e));
 }
 </script>
 

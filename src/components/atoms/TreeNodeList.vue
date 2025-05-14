@@ -35,7 +35,7 @@
 <script lang="ts">
 import { reactive } from "vue";
 import TreeNodeList from "~/components/atoms/TreeNodeList.vue";
-import { TreeNode } from "~/types/TreeNode";
+import type { TreeNode } from "~/types/TreeNode";
 
 export interface TreeNodeItem extends TreeNode {
 	isOpen?: boolean;
@@ -69,11 +69,11 @@ const state = reactive<State>({
 	isOpen: props.isOpen
 });
 
-const handleClicked = (path: string) => {
+const handleClicked = (path: string): void => {
 	props.onChange?.(path);
 	toggleOpen();
 };
-const toggleOpen = () => {
+const toggleOpen = (): void => {
 	state.isOpen = !state.isOpen;
 };
 </script>

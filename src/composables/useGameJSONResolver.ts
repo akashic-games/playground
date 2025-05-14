@@ -1,8 +1,9 @@
 import axios from "axios";
 import urlJoin from "url-join";
-import { InjectionKey, reactive } from "vue";
-import { Asset, GameConfiguration } from "~/types/AkashicEngineStandalone";
-import { PseudoFile } from "~/types/PseudoFile";
+import type { InjectionKey } from "vue";
+import { reactive } from "vue";
+import type { Asset, GameConfiguration } from "~/types/AkashicEngineStandalone";
+import type { PseudoFile } from "~/types/PseudoFile";
 import { basename, dirname, extname, resolve } from "~/utils/path";
 
 export const useGameJSONResolverKey: InjectionKey<UseGameJSONResolverStore> = Symbol("useGameJSONResolver");
@@ -28,12 +29,12 @@ interface State {
 	removeExtraModule: (moduleName: string, moduleScriptPaths: string[]) => void;
 }
 
-export function useGameJSONResolver() {
+export function useGameJSONResolver(): State {
 	/**
 	 * game.json のデータを取得する
 	 * @param uri game.json の uri
 	 */
-	const getGameJSONFromUri = async (uri: string) => {
+	const getGameJSONFromUri = async (uri: string): Promise<GameConfiguration> => {
 		const res = await axios.get(uri, { responseType: "json" });
 		return res.data as GameConfiguration;
 	};
@@ -42,7 +43,7 @@ export function useGameJSONResolver() {
 	 * game.json の Uri から state を更新する
 	 * @param uri game.json の uri
 	 */
-	const fetchPseudoFilesFromUri = async (uri: string) => {
+	const fetchPseudoFilesFromUri = async (uri: string): Promise<void> => {
 		const gameJSON = await getGameJSONFromUri(uri);
 		return fetchPseudoFilesFromGameJSON(gameJSON, dirname(uri));
 	};
@@ -52,7 +53,7 @@ export function useGameJSONResolver() {
 	 * @param gameJSON game.json のデータ
 	 * @param assetBase アセットベース
 	 */
-	const fetchPseudoFilesFromGameJSON = async (gameJSON: GameConfiguration, assetBase: string) => {
+	const fetchPseudoFilesFromGameJSON = async (gameJSON: GameConfiguration, assetBase: string): Promise<void> => {
 		const assetsMap = { ...gameJSON.assets };
 
 		const assets = Object.keys(assetsMap).map(assetId => {
@@ -231,7 +232,7 @@ export function useGameJSONResolver() {
 	 * game.json のデータを生成する
 	 * FIXME: 改善の余地あり
 	 */
-	const generateGameJSON = (cascadeGameJSON?: GameConfiguration) => {
+	const generateGameJSON = (cascadeGameJSON?: GameConfiguration): GameConfiguration => {
 		if (cascadeGameJSON) {
 			// 一旦以下のみ動的に変更する
 			state.width = cascadeGameJSON.width;
@@ -306,12 +307,12 @@ export function useGameJSONResolver() {
 		return normalizeGlobalScripts(gameJSON);
 	};
 
-	const addAsset = async (assetId: string, asset: Asset, assetBase: string) => {
+	const addAsset = async (assetId: string, asset: Asset, assetBase: string): Promise<void> => {
 		const file = await generatePseudoFileFromAsset(assetId, asset, assetBase);
 		state.pseudoFiles.push(file);
 	};
 
-	const removeAsset = (assetId: string) => {
+	const removeAsset = (assetId: string): void => {
 		state.pseudoFiles.some((file, i) => {
 			if (file.assetType !== "game.json" && file.id === assetId) {
 				state.pseudoFiles.splice(i, 1);
@@ -323,7 +324,7 @@ export function useGameJSONResolver() {
 	/**
 	 * moduleScriptPaths の第0要素を moduleMainScripts として扱う
 	 */
-	const addExtraModule = async (moduleName: string, moduleScriptPaths: string[], assetBase: string) => {
+	const addExtraModule = async (moduleName: string, moduleScriptPaths: string[], assetBase: string): Promise<void> => {
 		state.moduleMainScripts[moduleName] = moduleScriptPaths[0];
 		const globalScriptAssets = generateScriptAssetFromModuleScripts(moduleScriptPaths);
 		for (const globalScriptAsset of globalScriptAssets) {
@@ -334,7 +335,7 @@ export function useGameJSONResolver() {
 		}
 	};
 
-	const removeExtraModule = (moduleName: string, moduleScriptPaths: string[]) => {
+	const removeExtraModule = (moduleName: string, moduleScriptPaths: string[]): void => {
 		delete state.moduleMainScripts[moduleName];
 		for (const path of moduleScriptPaths) {
 			removeAsset(path);

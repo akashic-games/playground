@@ -17,7 +17,7 @@ interface Props {
 const props = defineProps<Props>();
 const audioContainerRef = ref<HTMLAudioElement>();
 
-const createPlayer = () => {
+const createPlayer = (): void => {
 	if (!audioContainerRef.value) return;
 	audioContainerRef.value.innerHTML = "";
 	const player = document.createElement("audio");
