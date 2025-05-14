@@ -86,7 +86,8 @@ const changeCurrentPageTab = (name: string): void => {
 };
 
 if (props.autoplay) {
-	handleClickOverlay().catch(e => console.log(e));
+	// FIXME: await を付けた場合、実行時にページが真っ白で表示されなくなる。
+	handleClickOverlay().catch(e => console.error(e));
 }
 </script>
 
