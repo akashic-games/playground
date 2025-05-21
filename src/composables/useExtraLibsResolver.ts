@@ -1,5 +1,6 @@
 import axios from "axios";
-import { InjectionKey, reactive } from "vue";
+import type { InjectionKey } from "vue";
+import { reactive } from "vue";
 
 export const useExtraLibsResolverKey: InjectionKey<UseExtraLibsResolverStore> = Symbol("useExtraLibsResolver");
 
@@ -12,7 +13,7 @@ interface State {
 	}[];
 }
 
-export function useExtraLibsResolver() {
+export function useExtraLibsResolver(): State {
 	const getExtraLibUris = (version: string, moduleNames: string[]): string[] => {
 		// TODO: ハードコーディング
 		return moduleNames
@@ -36,7 +37,8 @@ export function useExtraLibsResolver() {
 			.filter((url): url is string => url != null);
 	};
 
-	const fetchExtraLibsFromUris = async (uris: string[]) => {
+	const fetchExtraLibsFromUris = async (uris: string[]): Promise<void> => {
+		// eslint-disable-next-line　import/no-named-as-default-member
 		const reses = await axios.all(uris.map(uri => axios.get(uri)));
 		state.extraLibs.splice(0, state.extraLibs.length);
 		for (let i = 0; i < reses.length; i++) {

@@ -41,7 +41,8 @@ const props = withDefaults(defineProps<Props>(), {
 const gameConfs = useGameJSONResolver();
 provide(useGameJSONResolverKey, gameConfs);
 provide(useGameContextKey, useGameContext());
-gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri);
+// FIXME: await を付けた場合、実行時にページが真っ白で表示されなくなる。
+gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri).catch(e => console.error(e));
 </script>
 
 <style lang="scss" scoped>

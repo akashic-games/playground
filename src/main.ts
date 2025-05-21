@@ -1,7 +1,7 @@
 import urlJoin from "url-join";
 import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
-import { UriParameter } from "./types/UriParameter";
+import type { UriParameter } from "./types/UriParameter";
 import App from "~/components/pages/RootPage.vue";
 import { decode } from "~/utils/Base64";
 

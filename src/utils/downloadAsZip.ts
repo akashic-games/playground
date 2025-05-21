@@ -2,13 +2,13 @@ import * as path from "path";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import urlJoin from "url-join";
-import { PseudoFile } from "~/types/PseudoFile";
+import type { PseudoFile } from "~/types/PseudoFile";
 import { getBinaryContent } from "~/utils/getBinaryContent";
 import { dirname } from "~/utils/path";
 
 const binaryCache: { [name: string]: any } = {};
 
-export async function downloadAsZip(name: string, pseudoFiles: PseudoFile[]) {
+export async function downloadAsZip(name: string, pseudoFiles: PseudoFile[]): Promise<void> {
 	const zip = new JSZip();
 
 	for (const file of pseudoFiles) {

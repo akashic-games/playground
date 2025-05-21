@@ -1,4 +1,5 @@
-import { InjectionKey, reactive } from "vue";
+import type { InjectionKey } from "vue";
+import { reactive } from "vue";
 
 export const useCodeEditorKey: InjectionKey<UseCodeEditorStore> = Symbol("useCodeEditor");
 
@@ -11,14 +12,14 @@ interface State {
 	setExtraLibs: (extraLibs: { content: string; filePath?: string }[]) => void;
 }
 
-export function useCodeEditor() {
-	const setValue = (uri: string, value: string, language: string) => {
+export function useCodeEditor(): State {
+	const setValue = (uri: string, value: string, language: string): void => {
 		state.uri = uri;
 		state.value = value;
 		state.language = language;
 	};
 
-	const setExtraLibs = (extraLibs: { content: string; filePath?: string }[]) => {
+	const setExtraLibs = (extraLibs: { content: string; filePath?: string }[]): void => {
 		state.extraLibs = extraLibs;
 	};
 

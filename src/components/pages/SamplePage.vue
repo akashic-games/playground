@@ -64,8 +64,8 @@ const gameConfs = useGameJSONResolver();
 const gameContext = useGameContext();
 provide(useGameJSONResolverKey, gameConfs);
 provide(useGameContextKey, gameContext);
-
-gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri);
+// FIXME: await を付けた場合、実行時にページが真っ白で表示されなくなる。
+gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri).catch(e => console.error(e));
 
 const state = reactive<State>({
 	title: null,

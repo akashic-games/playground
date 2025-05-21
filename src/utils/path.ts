@@ -19,6 +19,6 @@ export function basename(url: string): string {
 	return path.basename(url);
 }
 
-export function extname(url: string) {
+export function extname(url: string): string {
 	return path.extname(url);
 }
