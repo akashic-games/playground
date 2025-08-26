@@ -1,4 +1,3 @@
-import axios from "axios";
 import type { InjectionKey } from "vue";
 import { reactive } from "vue";
 
@@ -38,13 +37,17 @@ export function useExtraLibsResolver(): State {
 	};
 
 	const fetchExtraLibsFromUris = async (uris: string[]): Promise<void> => {
-		// eslint-disable-next-line　import/no-named-as-default-member
-		const reses = await axios.all(uris.map(uri => axios.get(uri)));
+		const reses = await Promise.all(
+			uris.map(async uri => {
+				const response = await fetch(uri);
+				return await response.text();
+			})
+		);
 		state.extraLibs.splice(0, state.extraLibs.length);
 		for (let i = 0; i < reses.length; i++) {
 			state.extraLibs.push({
 				filePath: undefined,
-				content: reses[i].data
+				content: reses[i]
 			});
 		}
 	};
