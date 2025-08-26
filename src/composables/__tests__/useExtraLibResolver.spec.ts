@@ -1,12 +1,13 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import fetchMock from "jest-fetch-mock";
 import { useExtraLibsResolver } from "~/composables/useExtraLibsResolver";
 
 describe("useExtraLibsResolver", () => {
-	let mockAxios: MockAdapter;
+	beforeAll(() => {
+		fetchMock.enableMocks();
+	});
 
 	beforeEach(() => {
-		mockAxios = new MockAdapter(axios);
+		fetchMock.resetMocks();
 	});
 
 	test("gets the uri of given module names", () => {
@@ -23,11 +24,15 @@ describe("useExtraLibsResolver", () => {
 	});
 
 	test("gets type definition file from module names", async () => {
-		mockAxios.onGet("types/3.0.0/akashic-engine.d.ts").reply(() => {
-			return [200, "dummy data (akashic-engine.d.ts)"];
-		});
-		mockAxios.onGet("types/3.0.0/playlog.d.ts").reply(() => {
-			return [200, "dummy data (playlog.d.ts)"];
+		fetchMock.mockResponse(req => {
+			switch (req.url) {
+				case "types/3.0.0/akashic-engine.d.ts":
+					return Promise.resolve("dummy data (akashic-engine.d.ts)");
+				case "types/3.0.0/playlog.d.ts":
+					return Promise.resolve("dummy data (playlog.d.ts)");
+				default:
+					return Promise.reject(new Error("Not Found"));
+			}
 		});
 
 		const extraLibResolver = useExtraLibsResolver();

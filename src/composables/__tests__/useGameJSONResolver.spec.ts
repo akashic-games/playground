@@ -1,5 +1,4 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import fetchMock from "jest-fetch-mock";
 import { useGameJSONResolver } from "~/composables/useGameJSONResolver";
 import type { GameConfiguration } from "~/types/AkashicEngineStandalone";
 import type {
@@ -13,18 +12,31 @@ import type {
 } from "~/types/PseudoFile";
 
 describe("useGameJSONResolver", () => {
-	let mockAxios: MockAdapter;
+	beforeAll(() => {
+		fetchMock.enableMocks();
+	});
 
 	beforeEach(() => {
-		mockAxios = new MockAdapter(axios);
+		fetchMock.resetMocks();
 	});
 
 	test("resolves game.json", async () => {
-		mockAxios.onGet("base/script/main.js").reply(200, "dummy data (base/script/main.js)");
-		mockAxios.onGet("base/text/text.txt").reply(200, "dummy data (base/text/text.txt)");
-		mockAxios.onGet("base/text/json.json").reply(200, JSON.stringify({ data: "dummy data (base/text/json.json)" }));
-		mockAxios.onGet("base/image/image.png").reply(200, Buffer.from([]));
-		mockAxios.onGet("base/bin/data.bin").reply(200, Buffer.from([]));
+		fetchMock.mockResponse((req: Request): any => {
+			switch (req.url) {
+				case "base/script/main.js":
+					return Promise.resolve("dummy data (base/script/main.js)");
+				case "base/text/text.txt":
+					return Promise.resolve("dummy data (base/text/text.txt)");
+				case "base/text/json.json":
+					return Promise.resolve(JSON.stringify({ data: "dummy data (base/text/json.json)" }));
+				case "base/image/image.png":
+					return Promise.resolve(Buffer.from([]));
+				case "base/bin/data.bin":
+					return Promise.resolve(Buffer.from([]));
+				default:
+					return Promise.reject(new Error("Not Found"));
+			}
+		});
 
 		const gameConfiguration: GameConfiguration = {
 			title: "game title",
@@ -197,9 +209,18 @@ describe("useGameJSONResolver", () => {
 	});
 
 	test("adds/removes assets", async () => {
-		mockAxios.onGet("base/script/main.js").reply(200, "dummy data (base/script/main.js)");
-		mockAxios.onGet("base/text/text.txt").reply(200, "dummy data (base/text/text.txt)");
-		mockAxios.onGet("base/text/json.json").reply(200, JSON.stringify({ data: "dummy data (base/text/json.json)" }));
+		fetchMock.mockResponse((req: Request): any => {
+			switch (req.url) {
+				case "base/script/main.js":
+					return Promise.resolve("dummy data (base/script/main.js)");
+				case "base/text/text.txt":
+					return Promise.resolve("dummy data (base/text/text.txt)");
+				case "base/text/json.json":
+					return Promise.resolve(JSON.stringify({ data: "dummy data (base/text/json.json)" }));
+				default:
+					return Promise.reject(new Error("Not Found"));
+			}
+		});
 
 		const gameConfiguration: GameConfiguration = {
 			title: "game title",
@@ -282,11 +303,22 @@ describe("useGameJSONResolver", () => {
 	});
 
 	test("adds/removes extraLibs", async () => {
-		mockAxios.onGet("base/script/main.js").reply(200, "dummy data (base/script/main.js)");
-		mockAxios.onGet("base/node_modules/@scoped/extra-lib/lib/index.js").reply(200, "dummy data (base/node_modules/lib/index.js)");
-		mockAxios.onGet("base/node_modules/@scoped/extra-lib/lib/module1.js").reply(200, "dummy data (base/node_modules/lib/module1.js)");
-		mockAxios.onGet("base/node_modules/@scoped/extra-lib/lib/module2.js").reply(200, "dummy data (base/node_modules/lib/module2.js)");
-		mockAxios.onGet("base/node_modules/@scoped/extra-lib/lib/module3.js").reply(200, "dummy data (base/node_modules/lib/module3.js)");
+		fetchMock.mockResponse((req: Request): any => {
+			switch (req.url) {
+				case "base/script/main.js":
+					return Promise.resolve("dummy data (base/script/main.js)");
+				case "base/node_modules/@scoped/extra-lib/lib/index.js":
+					return Promise.resolve("dummy data (base/node_modules/lib/index.js)");
+				case "base/node_modules/@scoped/extra-lib/lib/module1.js":
+					return Promise.resolve("dummy data (base/node_modules/lib/module1.js)");
+				case "base/node_modules/@scoped/extra-lib/lib/module2.js":
+					return Promise.resolve("dummy data (base/node_modules/lib/module2.js)");
+				case "base/node_modules/@scoped/extra-lib/lib/module3.js":
+					return Promise.resolve("dummy data (base/node_modules/lib/module3.js)");
+				default:
+					return Promise.reject(new Error("Not Found"));
+			}
+		});
 
 		const gameConfiguration: GameConfiguration = {
 			title: "game title",
