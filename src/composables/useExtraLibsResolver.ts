@@ -37,12 +37,7 @@ export function useExtraLibsResolver(): State {
 	};
 
 	const fetchExtraLibsFromUris = async (uris: string[]): Promise<void> => {
-		const reses = await Promise.all(
-			uris.map(async uri => {
-				const response = await fetch(uri);
-				return await response.text();
-			})
-		);
+		const reses = await Promise.all(uris.map(async uri => (await fetch(uri)).text()));
 		state.extraLibs.splice(0, state.extraLibs.length);
 		for (let i = 0; i < reses.length; i++) {
 			state.extraLibs.push({

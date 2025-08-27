@@ -1,3 +1,3 @@
-export async function getBinaryContent(url: string) {
-	return await (await fetch(url)).arrayBuffer();
+export async function getBinaryContent(url: string): Promise<ArrayBuffer> {
+	return (await fetch(url)).arrayBuffer();
 }

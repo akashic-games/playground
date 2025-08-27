@@ -34,8 +34,8 @@ export function useGameJSONResolver(): State {
 	 * @param uri game.json の uri
 	 */
 	const getGameJSONFromUri = async (uri: string): Promise<GameConfiguration> => {
-		const res = await (await fetch(uri)).json();
-		return res as GameConfiguration;
+		const res = await fetch(uri);
+		return res.json();
 	};
 
 	/**
