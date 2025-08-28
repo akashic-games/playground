@@ -1,4 +1,3 @@
-import axios from "axios";
 import urlJoin from "url-join";
 import type { InjectionKey } from "vue";
 import { reactive } from "vue";
@@ -35,8 +34,8 @@ export function useGameJSONResolver(): State {
 	 * @param uri game.json の uri
 	 */
 	const getGameJSONFromUri = async (uri: string): Promise<GameConfiguration> => {
-		const res = await axios.get(uri, { responseType: "json" });
-		return res.data as GameConfiguration;
+		const res = await fetch(uri);
+		return res.json();
 	};
 
 	/**
@@ -134,7 +133,7 @@ export function useGameJSONResolver(): State {
 		const global = !!asset.global;
 
 		if (asset.type === "script") {
-			const value = await (await axios.get(uri, { responseType: "text" })).data;
+			const value = await (await fetch(uri)).text();
 			const isGlobalScript = asset.path === assetId;
 			const hidden = isGlobalScript;
 			const readOnly = isGlobalScript;
@@ -153,8 +152,7 @@ export function useGameJSONResolver(): State {
 				readOnly
 			};
 		} else if (asset.type === "text") {
-			const ret = await axios.get(uri, { responseType: "text" });
-			const value = ret.data;
+			const value = await (await fetch(uri)).text();
 			return {
 				id: assetId,
 				name: assetId,
@@ -168,7 +166,7 @@ export function useGameJSONResolver(): State {
 				global
 			};
 		} else if (asset.type === "image" || asset.type === "vector-image") {
-			const blob = (await axios.get(uri, { responseType: "blob" })).data;
+			const blob = await (await fetch(uri)).blob();
 			return {
 				id: assetId,
 				name: assetId,
@@ -202,7 +200,7 @@ export function useGameJSONResolver(): State {
 				global
 			};
 		} else if (asset.type === "binary") {
-			const blob = (await axios.get(uri, { responseType: "blob" })).data;
+			const blob = await (await fetch(uri)).blob();
 			return {
 				id: assetId,
 				name: assetId,
