@@ -1,4 +1,4 @@
-/*! akashic-engine-standalone@3.20.2 */
+/*! akashic-engine-standalone@3.21.1 */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -1769,6 +1769,16 @@
 		            ctx === null || ctx === void 0 ? void 0 : ctx._endSuppress();
 		        }
 		    };
+		    /**
+		     * @private
+		     */
+		    AudioSystem.prototype._onVolumeChanged = function () {
+		        for (var _i = 0, _a = this._contextMap.keys(); _i < _a.length; _i++) {
+		            var key = _a[_i];
+		            var ctx = this._contextMap.get(key);
+		            ctx === null || ctx === void 0 ? void 0 : ctx.changeVolume(this.volume);
+		        }
+		    };
 		    return AudioSystem;
 		}());
 		AudioSystem.AudioSystem = AudioSystem$1;
@@ -1828,6 +1838,7 @@
 		     * @private
 		     */
 		    MusicAudioSystem.prototype._onVolumeChanged = function () {
+		        _super.prototype._onVolumeChanged.call(this);
 		        this.player._notifyVolumeChanged();
 		    };
 		    /**
@@ -1952,6 +1963,7 @@
 		     * @private
 		     */
 		    SoundAudioSystem.prototype._onVolumeChanged = function () {
+		        _super.prototype._onVolumeChanged.call(this);
 		        for (var i = 0; i < this.players.length; ++i) {
 		            this.players[i]._notifyVolumeChanged();
 		        }
@@ -3752,15 +3764,14 @@
 		     * このメソッドはエンジンから暗黙に呼び出され、ゲーム開発者が呼び出す必要はない。
 		     */
 		    CacheableE.prototype.renderSelf = function (renderer, camera) {
-		        var padding = CacheableE.PADDING;
 		        if (this._renderedCamera !== camera) {
 		            this.state &= ~2 /* EntityStateFlags.Cached */;
 		            this._renderedCamera = camera;
 		        }
 		        if (!(this.state & 2 /* EntityStateFlags.Cached */)) {
 		            this._cacheSize = this.calculateCacheSize();
-		            var w = Math.ceil(this._cacheSize.width) + padding * 2;
-		            var h = Math.ceil(this._cacheSize.height) + padding * 2;
+		            var w = Math.ceil(this._cacheSize.width);
+		            var h = Math.ceil(this._cacheSize.height);
 		            var isNew = !this._cache || this._cache.width < w || this._cache.height < h;
 		            if (isNew) {
 		                if (this._cache && !this._cache.destroyed()) {
@@ -3775,16 +3786,13 @@
 		                cacheRenderer.clear();
 		            }
 		            cacheRenderer.save();
-		            cacheRenderer.translate(padding, padding);
 		            this.renderCache(cacheRenderer, camera);
 		            cacheRenderer.restore();
 		            this.state |= 2 /* EntityStateFlags.Cached */;
 		            cacheRenderer.end();
 		        }
 		        if (this._cache && this._cacheSize.width > 0 && this._cacheSize.height > 0) {
-		            renderer.translate(-padding, -padding);
 		            this.renderSelfFromCache(renderer);
-		            renderer.translate(padding, padding);
 		        }
 		        return this._shouldRenderChildren;
 		    };
@@ -3793,7 +3801,7 @@
 		     * このメソッドはエンジンから暗黙に呼び出され、ゲーム開発者が呼び出す必要はない。
 		     */
 		    CacheableE.prototype.renderSelfFromCache = function (renderer) {
-		        renderer.drawImage(this._cache, 0, 0, this._cacheSize.width + CacheableE.PADDING, this._cacheSize.height + CacheableE.PADDING, 0, 0);
+		        renderer.drawImage(this._cache, 0, 0, this._cacheSize.width, this._cacheSize.height, 0, 0);
 		    };
 		    /**
 		     * 利用している `Surface` を破棄した上で、このエンティティを破棄する。
@@ -3817,12 +3825,6 @@
 		            height: this.height
 		        };
 		    };
-		    /**
-		     * _cache のパディングサイズ。
-		     *
-		     * @private
-		     */
-		    CacheableE.PADDING = 1;
 		    return CacheableE;
 		}(E_1.E));
 		CacheableE.CacheableE = CacheableE$1;
@@ -4538,7 +4540,7 @@
 		                destOffsetX = this._overhangLeft;
 		                break;
 		        }
-		        renderer.drawImage(this._cache, 0, 0, this._cacheSize.width + CacheableE_1.CacheableE.PADDING, this._cacheSize.height + CacheableE_1.CacheableE.PADDING, destOffsetX, 0);
+		        renderer.drawImage(this._cache, 0, 0, this._cacheSize.width, this._cacheSize.height, destOffsetX, 0);
 		    };
 		    Label.prototype.renderCache = function (renderer) {
 		        if (!this.fontSize || this.height <= 0 || this._textWidth <= 0) {
@@ -9536,6 +9538,108 @@
 		return LocalTickModeString;
 	}
 
+	var _Math = {};
+
+	var hasRequired_Math;
+
+	function require_Math () {
+		if (hasRequired_Math) return _Math;
+		hasRequired_Math = 1;
+		Object.defineProperty(_Math, "__esModule", { value: true });
+		_Math.Math = void 0;
+		var ExceptionFactory_1 = requireExceptionFactory$2();
+		/**
+		 * ルックアップテーブルを使った三角関数計算を提供する。
+		 */
+		var Math;
+		(function (Math) {
+		    var PI = globalThis.Math.PI;
+		    var PI2 = PI * 2;
+		    var arrayType = typeof Float32Array !== "undefined" ? Float32Array : Array;
+		    /**
+		     * Math を初期化する関数。
+		     * 指定したテーブルサイズおよび近似計算の反復回数に基づき、正弦値のルックアップテーブルを生成する。
+		     * 本関数は `Math.sin()` や `Math.cos()` を使用する前に呼ぶ必要がある。
+		     */
+		    function initialize(option) {
+		        var _a, _b, _c;
+		        var tableSize = (_a = option === null || option === void 0 ? void 0 : option.tableSize) !== null && _a !== void 0 ? _a : 8192 * 2;
+		        var wholePeriod = (_b = option === null || option === void 0 ? void 0 : option.wholePeriod) !== null && _b !== void 0 ? _b : true;
+		        var iterationNum = (_c = option === null || option === void 0 ? void 0 : option.iterationNum) !== null && _c !== void 0 ? _c : 5;
+		        var angleRange = wholePeriod ? PI * 2 : PI / 2;
+		        var factor = (tableSize - 1) / angleRange;
+		        var sinTable = setupSinTable(new arrayType(tableSize), angleRange, iterationNum);
+		        Math.sin = function (th) {
+		            th %= PI2;
+		            if (th < 0)
+		                th += PI2;
+		            if (wholePeriod) {
+		                return sinTable[(th * factor) | 0];
+		            }
+		            else {
+		                var sign = 1;
+		                if (th > PI) {
+		                    th -= PI;
+		                    sign = -1;
+		                }
+		                var idx = (th * factor) | 0;
+		                if (idx > sinTable.length - 1) {
+		                    idx = (sinTable.length - 1) * 2 - idx;
+		                }
+		                return sign * sinTable[idx];
+		            }
+		        };
+		        Math.cos = function (th) {
+		            return Math.sin(th + PI / 2);
+		        };
+		    }
+		    Math.initialize = initialize;
+		    /**
+		     * 高速な正弦関数。
+		     *
+		     * @param th ラジアン角
+		     * @returns 結果
+		     */
+		    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+		    Math.sin = function (th) {
+		        throw ExceptionFactory_1.ExceptionFactory.createAssertionError("Math.sin: module not initialized. Call g.Math.initialize() before calling this function.");
+		    };
+		    /**
+		     * 高速な余弦関数。
+		     *
+		     * @param th ラジアン角
+		     * @returns 結果
+		     */
+		    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+		    Math.cos = function (th) {
+		        throw ExceptionFactory_1.ExceptionFactory.createAssertionError("Math.cos: module not initialized. Call g.Math.initialize() before calling this function.");
+		    };
+		    function setupSinTable(arr, angleRange, iterNum) {
+		        var reso = arr.length;
+		        function sin(x) {
+		            var minusXSquared = -x * x;
+		            var s = 1;
+		            var n = 0;
+		            var term = 1;
+		            for (var i = 1; i <= 2 * iterNum; i++) {
+		                n = n + 2;
+		                term = (term * minusXSquared) / (n * (n + 1));
+		                s = s + term;
+		            }
+		            s = x * s;
+		            return s;
+		        }
+		        var factor = angleRange / (reso - 1);
+		        for (var i = 0; i < reso; i++) {
+		            arr[i] = sin(factor * i);
+		        }
+		        return arr;
+		    }
+		})(Math || (_Math.Math = Math = {}));
+		
+		return _Math;
+	}
+
 	var ModuleManager = {};
 
 	var RequireCachedValue = {};
@@ -11245,6 +11349,31 @@
 		        });
 		    };
 		    /**
+		     * ローカルティック生成を中断する。
+		     * `isActiveInstance()` が真のインスタンスでは何もしない。
+		     *
+		     * 中断されたローカルティック生成は、次の契機で再開される。
+		     *  * 明示的に `resumeLocalTick()` を呼び出した場合
+		     *  * 非ローカルティックを受信した場合
+		     *  * ローカルイベントを受信した場合
+		     *
+		     * 制限事項: 現実装では、次のいずれかの場合、このメソッドでローカルティックを中断させてはならない。
+		     *  * シーン遷移時 (`g.game.pushScene()`, `popScene()` などの呼び出し時から、遷移先シーンの最初の onUpdate 通知まで)
+		     *  * ローディングシーン中
+		     *  * `g.Scene#requestAssets()` 呼び出し後、コールバックが呼ばれるまでの間
+		     * この制限は将来的に緩和される。
+		     */
+		    Game.prototype.suspendLocalTick = function () {
+		        this.handlerSet.suspendLocalTick();
+		    };
+		    /**
+		     * ローカルティック生成を再開する。
+		     * 中断されていない場合は何もしない。
+		     */
+		    Game.prototype.resumeLocalTick = function () {
+		        this.handlerSet.resumeLocalTick();
+		    };
+		    /**
 		     * 現在時刻を取得する。
 		     *
 		     * 値は1970-01-01T00:00:00Zからのミリ秒での経過時刻である。
@@ -11959,6 +12088,7 @@
 			__exportStar(requireInternalOperationPluginInfo(), exports);
 			__exportStar(requireLoadingScene(), exports);
 			__exportStar(requireLocalTickModeString(), exports);
+			__exportStar(require_Math(), exports);
 			__exportStar(requireMatrix(), exports);
 			__exportStar(requireModule(), exports);
 			__exportStar(requireModuleManager(), exports);
@@ -12117,6 +12247,12 @@
 		    GameHandlerSet.prototype.getInstanceType = function () {
 		        // NOTE: Active かどうかは `shouldSaveSnapshot()` と等価なので、簡易対応としてこの実装を用いる。
 		        return this.shouldSaveSnapshot() ? "active" : "passive";
+		    };
+		    GameHandlerSet.prototype.suspendLocalTick = function () {
+		        // do nothing
+		    };
+		    GameHandlerSet.prototype.resumeLocalTick = function () {
+		        // do nothing
 		    };
 		    GameHandlerSet.prototype.saveSnapshot = function (frame, gameSnapshot, randGenSer, timestamp) {
 		        if (!this.shouldSaveSnapshot())
@@ -13674,56 +13810,59 @@
 	function requireExceptionFactory () {
 		if (hasRequiredExceptionFactory) return ExceptionFactory;
 		hasRequiredExceptionFactory = 1;
-		(function (exports) {
-			Object.defineProperty(exports, "__esModule", { value: true });
-			exports.ExceptionFactory = void 0;
-			(function (ExceptionFactory) {
-			    function createAssertionError(message, cause) {
-			        var e = new Error(message);
-			        e.name = "AssertionError";
-			        e.cause = cause;
-			        return e;
-			    }
-			    ExceptionFactory.createAssertionError = createAssertionError;
-			    function createTypeMismatchError(methodName, expected, actual, cause) {
-			        var message = "Type mismatch on " + methodName + "," + " expected type is " + expected;
-			        if (arguments.length > 2) {
-			            // actual 指定時
-			            try {
-			                var actualString = void 0;
-			                if (actual && actual.constructor && actual.constructor.name) {
-			                    actualString = actual.constructor.name;
-			                }
-			                else {
-			                    actualString = typeof actual;
-			                }
-			                message += ", actual type is " + (actualString.length > 40 ? actualString.substr(0, 40) : actualString);
-			            }
-			            catch (ex) {
-			                // メッセージ取得時に例外が発生したらactualの型情報出力はあきらめる
-			            }
-			        }
-			        message += ".";
-			        var e = new Error(message);
-			        e.name = "TypeMismatchError";
-			        e.cause = cause;
-			        e.expected = expected;
-			        e.actual = actual;
-			        return e;
-			    }
-			    ExceptionFactory.createTypeMismatchError = createTypeMismatchError;
-			    function createAssetLoadError(message, retriable, _type, // 歴史的経緯により残っている値。利用していない。
-			    cause) {
-			        if (retriable === void 0) { retriable = true; }
-			        var e = new Error(message);
-			        e.name = "AssetLoadError";
-			        e.cause = cause;
-			        e.retriable = retriable;
-			        return e;
-			    }
-			    ExceptionFactory.createAssetLoadError = createAssetLoadError;
-			})(exports.ExceptionFactory || (exports.ExceptionFactory = {})); 
-		} (ExceptionFactory));
+		Object.defineProperty(ExceptionFactory, "__esModule", { value: true });
+		ExceptionFactory.ExceptionFactory = void 0;
+		/**
+		 * 例外生成ファクトリ。
+		 * エンジン内部での例外生成に利用するもので、ゲーム開発者は通常本モジュールを利用する必要はない。
+		 */
+		var ExceptionFactory$1;
+		(function (ExceptionFactory) {
+		    function createAssertionError(message, cause) {
+		        var e = new Error(message);
+		        e.name = "AssertionError";
+		        e.cause = cause;
+		        return e;
+		    }
+		    ExceptionFactory.createAssertionError = createAssertionError;
+		    function createTypeMismatchError(methodName, expected, actual, cause) {
+		        var message = "Type mismatch on " + methodName + "," + " expected type is " + expected;
+		        if (arguments.length > 2) {
+		            // actual 指定時
+		            try {
+		                var actualString = void 0;
+		                if (actual && actual.constructor && actual.constructor.name) {
+		                    actualString = actual.constructor.name;
+		                }
+		                else {
+		                    actualString = typeof actual;
+		                }
+		                message += ", actual type is " + (actualString.length > 40 ? actualString.substr(0, 40) : actualString);
+		            }
+		            catch (_ex) {
+		                // メッセージ取得時に例外が発生したらactualの型情報出力はあきらめる
+		            }
+		        }
+		        message += ".";
+		        var e = new Error(message);
+		        e.name = "TypeMismatchError";
+		        e.cause = cause;
+		        e.expected = expected;
+		        e.actual = actual;
+		        return e;
+		    }
+		    ExceptionFactory.createTypeMismatchError = createTypeMismatchError;
+		    function createAssetLoadError(message, retriable, _type, // 歴史的経緯により残っている値。利用していない。
+		    cause) {
+		        if (retriable === void 0) { retriable = true; }
+		        var e = new Error(message);
+		        e.name = "AssetLoadError";
+		        e.cause = cause;
+		        e.retriable = retriable;
+		        return e;
+		    }
+		    ExceptionFactory.createAssetLoadError = createAssetLoadError;
+		})(ExceptionFactory$1 || (ExceptionFactory.ExceptionFactory = ExceptionFactory$1 = {}));
 		return ExceptionFactory;
 	}
 
@@ -13889,26 +14028,28 @@
 	function requirePdiCommonUtil () {
 		if (hasRequiredPdiCommonUtil) return PdiCommonUtil;
 		hasRequiredPdiCommonUtil = 1;
-		(function (exports) {
-			Object.defineProperty(exports, "__esModule", { value: true });
-			exports.PdiCommonUtil = void 0;
-			(function (PdiCommonUtil) {
-			    /**
-			     * 与えられたパス文字列に与えられた拡張子を追加する。
-			     * @param path パス文字列
-			     * @param ext 追加する拡張子
-			     */
-			    function addExtname(path, ext) {
-			        var index = path.indexOf("?");
-			        if (index === -1) {
-			            return path + "." + ext;
-			        }
-			        // hoge?query => hoge.ext?query
-			        return path.substring(0, index) + "." + ext + path.substring(index, path.length);
-			    }
-			    PdiCommonUtil.addExtname = addExtname;
-			})(exports.PdiCommonUtil || (exports.PdiCommonUtil = {})); 
-		} (PdiCommonUtil));
+		Object.defineProperty(PdiCommonUtil, "__esModule", { value: true });
+		PdiCommonUtil.PdiCommonUtil = void 0;
+		/**
+		 * pdi-browserから使用されるユーティリティ
+		 */
+		var PdiCommonUtil$1;
+		(function (PdiCommonUtil) {
+		    /**
+		     * 与えられたパス文字列に与えられた拡張子を追加する。
+		     * @param path パス文字列
+		     * @param ext 追加する拡張子
+		     */
+		    function addExtname(path, ext) {
+		        var index = path.indexOf("?");
+		        if (index === -1) {
+		            return path + "." + ext;
+		        }
+		        // hoge?query => hoge.ext?query
+		        return path.substring(0, index) + "." + ext + path.substring(index, path.length);
+		    }
+		    PdiCommonUtil.addExtname = addExtname;
+		})(PdiCommonUtil$1 || (PdiCommonUtil.PdiCommonUtil = PdiCommonUtil$1 = {}));
 		return PdiCommonUtil;
 	}
 
@@ -14029,7 +14170,6 @@
 		hasRequiredSurface = 1;
 		Object.defineProperty(Surface, "__esModule", { value: true });
 		Surface.Surface = void 0;
-		var ExceptionFactory_1 = requireExceptionFactory();
 		/**
 		 * 描画領域を表すクラス。
 		 *
@@ -14039,16 +14179,13 @@
 		var Surface$1 = /** @class */ (function () {
 		    /**
 		     * `Surface` のインスタンスを生成する。
-		     * @param width 描画領域の幅（整数値でなければならない）
-		     * @param height 描画領域の高さ（整数値でなければならない）
+		     * @param width 描画領域の幅
+		     * @param height 描画領域の高さ
 		     * @param drawable 描画可能な実体。省略された場合、 `undefined`
 		     */
 		    function Surface(width, height, drawable) {
-		        if (width % 1 !== 0 || height % 1 !== 0) {
-		            throw ExceptionFactory_1.ExceptionFactory.createAssertionError("Surface#constructor: width and height must be integers");
-		        }
-		        this.width = width;
-		        this.height = height;
+		        this.width = Math.floor(width);
+		        this.height = Math.floor(height);
 		        this._drawable = drawable;
 		        // this._destroyedは破棄時に一度だけ代入する特殊なフィールドなため、コンストラクタで初期値を代入しない
 		    }
@@ -14785,7 +14922,8 @@
 		if (hasRequiredInputEventHandler) return InputEventHandler;
 		hasRequiredInputEventHandler = 1;
 		Object.defineProperty(InputEventHandler, "__esModule", { value: true });
-		InputEventHandler.preventEventDefault = InputEventHandler.InputEventHandler = void 0;
+		InputEventHandler.InputEventHandler = void 0;
+		InputEventHandler.preventEventDefault = preventEventDefault;
 		var trigger_1 = requireLib$3();
 		/**
 		 * 入力ハンドラ。
@@ -14874,7 +15012,6 @@
 		function preventEventDefault(ev) {
 		    ev.preventDefault();
 		}
-		InputEventHandler.preventEventDefault = preventEventDefault;
 		return InputEventHandler;
 	}
 
@@ -15350,6 +15487,10 @@
 		            }
 		        }
 		        return false;
+		    };
+		    AudioPluginManager.prototype.clear = function () {
+		        var _a;
+		        (_a = this._activePlugin) === null || _a === void 0 ? void 0 : _a.clear();
 		    };
 		    return AudioPluginManager;
 		}());
@@ -16590,7 +16731,6 @@
 		    WebGLShaderProgram.prototype._uniformMatrix4fv = function (loc, v) {
 		        this._context.uniformMatrix4fv(loc, false, v);
 		    };
-		    /* eslint-disable  @typescript-eslint/indent */
 		    WebGLShaderProgram._DEFAULT_VERTEX_SHADER = "#version 100\n" +
 		        "precision mediump float;\n" +
 		        "attribute vec4 aVertex;\n" +
@@ -17494,7 +17634,7 @@
 		    Platform.prototype.getOperationPluginViewInfo = function () {
 		        var _this = this;
 		        return {
-		            type: "pdi-browser",
+		            type: "pdi-browser", // note: scale情報を付加したため null ではないものを返している。
 		            view: this.containerController.inputHandlerLayer.view,
 		            getScale: function () { return _this.containerController.inputHandlerLayer._inputHandler.getScale(); }
 		        };
@@ -17534,6 +17674,8 @@
 		    Platform.prototype.destroy = function () {
 		        this.setRendererRequirement(undefined);
 		        this.setMasterVolume(0);
+		        // 各ローダーのキャッシュ削除
+		        this.audioPluginManager.clear();
 		    };
 		    return Platform;
 		}());
@@ -17543,6 +17685,87 @@
 
 	var HTMLAudioPlugin = {};
 
+	var CachedLoader = {};
+
+	var hasRequiredCachedLoader;
+
+	function requireCachedLoader () {
+		if (hasRequiredCachedLoader) return CachedLoader;
+		hasRequiredCachedLoader = 1;
+		Object.defineProperty(CachedLoader, "__esModule", { value: true });
+		CachedLoader.CachedLoader = void 0;
+		var CachedLoader$1 = /** @class */ (function () {
+		    function CachedLoader(loaderImpl, option) {
+		        this.loaderImpl = loaderImpl;
+		        this.table = new Map();
+		        this.priorities = new Map();
+		        this.totalSize = 0;
+		        this.totalUseCount = 0;
+		        this.limitSize = option.limitSize;
+		    }
+		    CachedLoader.prototype.load = function (key) {
+		        var _this = this;
+		        this._maximizePriority(key);
+		        var entry = this.table.get(key);
+		        if (entry) {
+		            return entry.promise;
+		        }
+		        var promise = this.loaderImpl(key).then(function (_a) {
+		            var value = _a.value, size = _a.size;
+		            _this.table.set(key, { size: size, promise: promise });
+		            _this._cleanupCache(size);
+		            return { value: value, size: size };
+		        }).catch(function (e) {
+		            _this._deleteCache(key);
+		            throw e;
+		        });
+		        this.table.set(key, { size: 0, promise: promise });
+		        return promise;
+		    };
+		    CachedLoader.prototype.reset = function () {
+		        this.table.clear();
+		        this.priorities.clear();
+		        this.totalSize = 0;
+		        this.totalUseCount = 0;
+		    };
+		    // キャッシュの整理。指定したサイズを合計サイズに加算して、合計サイズが上限を超えている場合は優先度が低い順に削除される
+		    CachedLoader.prototype._cleanupCache = function (size) {
+		        this.totalSize += size;
+		        if (this.totalSize <= this.limitSize) {
+		            return;
+		        }
+		        // 保存されている全リソースの容量が保存可能容量を超える場合、保存可能容量を下回るまで、使われていないリソースから順にキャッシュ用マップから削除していく
+		        var entries = Array.from(this.priorities).sort(function (a, b) { return a[1] - b[1]; });
+		        for (var _i = 0, entries_1 = entries; _i < entries_1.length; _i++) {
+		            var entry = entries_1[_i];
+		            this._deleteCache(entry[0]);
+		            if (this.totalSize <= this.limitSize) {
+		                break;
+		            }
+		        }
+		    };
+		    CachedLoader.prototype._deleteCache = function (key) {
+		        var entry = this.table.get(key);
+		        if (!entry) {
+		            return;
+		        }
+		        // キャッシュの合計容量を再計算
+		        this.totalSize -= entry.size;
+		        // キャッシュと優先度マップから削除
+		        this.table.delete(key);
+		        this.priorities.delete(key);
+		    };
+		    // 指定したキーの優先度を最大にする
+		    CachedLoader.prototype._maximizePriority = function (key) {
+		        this.totalUseCount++;
+		        this.priorities.set(key, this.totalUseCount);
+		    };
+		    return CachedLoader;
+		}());
+		CachedLoader.CachedLoader = CachedLoader$1;
+		return CachedLoader;
+	}
+
 	var audioUtil = {};
 
 	var hasRequiredAudioUtil;
@@ -17551,7 +17774,9 @@
 		if (hasRequiredAudioUtil) return audioUtil;
 		hasRequiredAudioUtil = 1;
 		Object.defineProperty(audioUtil, "__esModule", { value: true });
-		audioUtil.addExtname = audioUtil.resolveExtname = audioUtil.detectSupportedFormats = void 0;
+		audioUtil.detectSupportedFormats = detectSupportedFormats;
+		audioUtil.resolveExtname = resolveExtname;
+		audioUtil.addExtname = addExtname;
 		/**
 		 * Audio 要素で再生できる形式を検出する。
 		 * @returns 再生できる形式の配列
@@ -17581,7 +17806,6 @@
 		    }
 		    return supportedFormats;
 		}
-		audioUtil.detectSupportedFormats = detectSupportedFormats;
 		/**
 		 * 拡張子の配列から、再生可能な形式に合致するものを探す。
 		 * @param extensions 拡張子の配列または null | undefined (空配列と見なす)
@@ -17599,7 +17823,6 @@
 		    }
 		    return null;
 		}
-		audioUtil.resolveExtname = resolveExtname;
 		/**
 		 * 与えられたパス文字列に与えられた拡張子を追加する。
 		 * @param path パス文字列
@@ -17613,7 +17836,6 @@
 		    // hoge?query => hoge.ext?query
 		    return path.substring(0, index) + ext + path.substring(index, path.length);
 		}
-		audioUtil.addExtname = addExtname;
 		return audioUtil;
 	}
 
@@ -17706,18 +17928,154 @@
 		        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 		    };
 		})();
+		var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+		    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+		    return new (P || (P = Promise))(function (resolve, reject) {
+		        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+		        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+		        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+		        step((generator = generator.apply(thisArg, _arguments || [])).next());
+		    });
+		};
+		var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
+		    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+		    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+		    function verb(n) { return function (v) { return step([n, v]); }; }
+		    function step(op) {
+		        if (f) throw new TypeError("Generator is already executing.");
+		        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+		            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+		            if (y = 0, t) op = [op[0] & 2, t.value];
+		            switch (op[0]) {
+		                case 0: case 1: t = op; break;
+		                case 4: _.label++; return { value: op[1], done: false };
+		                case 5: _.label++; y = op[1]; op = [0]; continue;
+		                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+		                default:
+		                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+		                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+		                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+		                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+		                    if (t[2]) _.ops.pop();
+		                    _.trys.pop(); continue;
+		            }
+		            op = body.call(thisArg, _);
+		        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+		        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+		    }
+		};
 		Object.defineProperty(HTMLAudioAsset, "__esModule", { value: true });
 		HTMLAudioAsset.HTMLAudioAsset = void 0;
+		HTMLAudioAsset.loadAudioElement = loadAudioElement;
 		var AudioAsset_1 = requireAudioAsset();
 		var ExceptionFactory_1 = requireExceptionFactory$1();
 		var audioUtil_1 = requireAudioUtil();
+		function loadAudioElement(url) {
+		    return __awaiter(this, void 0, void 0, function () {
+		        function _loadAudioElement(url) {
+		            var audio = new Audio();
+		            var attachAll = function (audio, handlers) {
+		                if (handlers.success) {
+		                    /* eslint-disable max-len */
+		                    // https://developer.mozilla.org/en-US/docs/Web/Events/canplaythrough
+		                    // https://github.com/goldfire/howler.js/blob/1dad25cdd9d6982232050454e8b45411902efe65/howler.js#L372
+		                    // https://github.com/CreateJS/SoundJS/blob/e2d4842a84ff425ada861edb9f6e9b57f63d7caf/src/soundjs/htmlaudio/HTMLAudioSoundInstance.js#L145-145
+		                    /* eslint-enable max-len */
+		                    audio.addEventListener("canplaythrough", handlers.success, false);
+		                }
+		                if (handlers.error) {
+		                    // https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
+		                    // stalledはfetchして取れなかった時に起きるイベント
+		                    audio.addEventListener("stalled", handlers.error, false);
+		                    audio.addEventListener("error", handlers.error, false);
+		                    audio.addEventListener("abort", handlers.error, false);
+		                }
+		            };
+		            var detachAll = function (audio, handlers) {
+		                if (handlers.success) {
+		                    audio.removeEventListener("canplaythrough", handlers.success, false);
+		                }
+		                if (handlers.error) {
+		                    audio.removeEventListener("stalled", handlers.error, false);
+		                    audio.removeEventListener("error", handlers.error, false);
+		                    audio.removeEventListener("abort", handlers.error, false);
+		                }
+		            };
+		            return new Promise(function (resolve, reject) {
+		                var intervalId = -1;
+		                var handlers = {
+		                    success: function () {
+		                        detachAll(audio, handlers);
+		                        window.clearInterval(intervalId);
+		                        resolve({ value: { audio: audio, url: url }, size: 1000 * audio.duration });
+		                    },
+		                    error: function () {
+		                        detachAll(audio, handlers);
+		                        window.clearInterval(intervalId);
+		                        reject();
+		                    }
+		                };
+		                var setAudioLoadInterval = function (audio, handlers) {
+		                    // IE11において、canplaythroughイベントが正常に発火しない問題が確認されたため、その対処として以下の処理を行っている。
+		                    // なお、canplaythroughはreadyStateの値が4になった時点で呼び出されるイベントである。
+		                    // インターバルとして指定している100msに根拠は無い。
+		                    var intervalCount = 0;
+		                    intervalId = window.setInterval(function () {
+		                        if (audio.readyState === 4) {
+		                            handlers.success();
+		                        }
+		                        else {
+		                            ++intervalCount;
+		                            // readyStateの値が4にならない状態が1分（100ms×600）続いた場合、
+		                            // 読み込みに失敗したとする。1分という時間に根拠は無い。
+		                            if (intervalCount === 600) {
+		                                handlers.error();
+		                            }
+		                        }
+		                    }, 100);
+		                };
+		                audio.autoplay = false;
+		                audio.preload = "none";
+		                audio.src = url;
+		                attachAll(audio, handlers);
+		                /* eslint-disable max-len */
+		                // Firefoxはpreload="auto"でないと読み込みされない
+		                // preloadはブラウザに対するHint属性なので、どう扱うかはブラウザの実装次第となる
+		                // https://html.spec.whatwg.org/multipage/embedded-content.html#attr-media-preload
+		                // https://developer.mozilla.org/ja/docs/Web/HTML/Element/audio#attr-preload
+		                // https://github.com/CreateJS/SoundJS/blob/e2d4842a84ff425ada861edb9f6e9b57f63d7caf/src/soundjs/htmlaudio/HTMLAudioSoundInstance.js#L147-147
+		                /* eslint-enable max-len */
+		                audio.preload = "auto";
+		                setAudioLoadInterval(audio, handlers);
+		                audio.load();
+		            });
+		        }
+		        var e_1, delIndex, basePath, newUrl, query;
+		        return __generator(this, function (_a) {
+		            switch (_a.label) {
+		                case 0:
+		                    _a.trys.push([0, 2, , 5]);
+		                    return [4 /*yield*/, _loadAudioElement(url)];
+		                case 1: return [2 /*return*/, _a.sent()];
+		                case 2:
+		                    e_1 = _a.sent();
+		                    delIndex = url.indexOf("?");
+		                    basePath = delIndex >= 0 ? url.substring(0, delIndex) : url;
+		                    if (!(basePath.slice(-4) === ".aac" && HTMLAudioAsset$1.supportedFormats.indexOf("mp4") !== -1)) return [3 /*break*/, 4];
+		                    newUrl = url.substring(0, delIndex - 4) + ".mp4";
+		                    query = delIndex >= 0 ? url.substring(delIndex, url.length) : "";
+		                    return [4 /*yield*/, _loadAudioElement(newUrl + query)];
+		                case 3: return [2 /*return*/, _a.sent()];
+		                case 4: throw e_1;
+		                case 5: return [2 /*return*/];
+		            }
+		        });
+		    });
+		}
 		var HTMLAudioAsset$1 = /** @class */ (function (_super) {
 		    __extends(HTMLAudioAsset, _super);
 		    function HTMLAudioAsset() {
-		        var _this = _super !== null && _super.apply(this, arguments) || this;
-		        _this._intervalId = -1;
-		        _this._intervalCount = 0;
-		        return _this;
+		        return _super !== null && _super.apply(this, arguments) || this;
 		    }
 		    HTMLAudioAsset.prototype._load = function (loader) {
 		        var _this = this;
@@ -17727,78 +18085,20 @@
 		            setTimeout(function () { return loader._onAssetLoad(_this); }, 0);
 		            return;
 		        }
-		        var audio = this.createAudioElement();
-		        var startLoadingAudio = function (path, handlers) {
-		            // autoplay は preload よりも優先されるため明示的にfalseとする
-		            audio.autoplay = false;
-		            audio.preload = "none";
-		            audio.src = path;
-		            _this._attachAll(audio, handlers);
-		            /* eslint-disable max-len */
-		            // Firefoxはpreload="auto"でないと読み込みされない
-		            // preloadはブラウザに対するHint属性なので、どう扱うかはブラウザの実装次第となる
-		            // https://html.spec.whatwg.org/multipage/embedded-content.html#attr-media-preload
-		            // https://developer.mozilla.org/ja/docs/Web/HTML/Element/audio#attr-preload
-		            // https://github.com/CreateJS/SoundJS/blob/e2d4842a84ff425ada861edb9f6e9b57f63d7caf/src/soundjs/htmlaudio/HTMLAudioSoundInstance.js#L147-147
-		            /* eslint-enable max-len */
-		            audio.preload = "auto";
-		            setAudioLoadInterval(audio, handlers);
-		            audio.load();
-		        };
-		        var handlers = {
-		            success: function () {
-		                _this._detachAll(audio, handlers);
-		                _this.data = audio;
-		                loader._onAssetLoad(_this);
-		                window.clearInterval(_this._intervalId);
-		            },
-		            error: function () {
-		                _this._detachAll(audio, handlers);
-		                _this.data = audio;
-		                loader._onAssetError(_this, ExceptionFactory_1.ExceptionFactory.createAssetLoadError("HTMLAudioAsset loading error"));
-		                window.clearInterval(_this._intervalId);
+		        var load = this._loadFun ? this._loadFun : loadAudioElement;
+		        load(this.path).then(function (data) {
+		            // aac読み込み失敗時に代わりにmp4が読み込まれるなど、パスの拡張子が変わるケースがある
+		            if (_this.path !== data.value.url) {
+		                _this.path = data.value.url;
 		            }
-		        };
-		        var setAudioLoadInterval = function (audio, handlers) {
-		            // IE11において、canplaythroughイベントが正常に発火しない問題が確認されたため、その対処として以下の処理を行っている。
-		            // なお、canplaythroughはreadyStateの値が4になった時点で呼び出されるイベントである。
-		            // インターバルとして指定している100msに根拠は無い。
-		            _this._intervalCount = 0;
-		            _this._intervalId = window.setInterval(function () {
-		                if (audio.readyState === 4) {
-		                    handlers.success();
-		                }
-		                else {
-		                    ++_this._intervalCount;
-		                    // readyStateの値が4にならない状態が1分（100ms×600）続いた場合、
-		                    // 読み込みに失敗したとする。1分という時間に根拠は無い。
-		                    if (_this._intervalCount === 600) {
-		                        handlers.error();
-		                    }
-		                }
-		            }, 100);
-		        };
-		        // 暫定対応：後方互換性のため、aacファイルが無い場合はmp4へのフォールバックを試みる。
-		        // この対応を止める際には、HTMLAudioPluginのsupportedExtensionsからaacを除外する必要がある。
-		        var delIndex = this.path.indexOf("?");
-		        var basePath = delIndex >= 0 ? this.path.substring(0, delIndex) : this.path;
-		        if (basePath.slice(-4) === ".aac" && HTMLAudioAsset.supportedFormats.indexOf("mp4") !== -1) {
-		            var altHandlers_1 = {
-		                success: handlers.success,
-		                error: function () {
-		                    _this._detachAll(audio, altHandlers_1);
-		                    window.clearInterval(_this._intervalId);
-		                    _this.path = (0, audioUtil_1.addExtname)(_this.originalPath, ".mp4");
-		                    startLoadingAudio(_this.path, handlers);
-		                }
-		            };
-		            startLoadingAudio(this.path, altHandlers_1);
-		            return;
-		        }
-		        startLoadingAudio(this.path, handlers);
+		            _this.data = data.value.audio;
+		            loader._onAssetLoad(_this);
+		        }).catch(function (_e) {
+		            loader._onAssetError(_this, ExceptionFactory_1.ExceptionFactory.createAssetLoadError("HTMLAudioAsset loading error"));
+		        });
 		    };
 		    HTMLAudioAsset.prototype.cloneElement = function () {
-		        return this.data ? this.createAudioElement(this.data.src) : null;
+		        return this.data ? new Audio(this.data.src) : null;
 		    };
 		    HTMLAudioAsset.prototype._assetPathFilter = function (path) {
 		        if (HTMLAudioAsset.supportedFormats.indexOf("ogg") !== -1) {
@@ -17816,36 +18116,6 @@
 		        var _a;
 		        var ext = (0, audioUtil_1.resolveExtname)((_a = this.hint) === null || _a === void 0 ? void 0 : _a.extensions, HTMLAudioAsset.supportedFormats);
 		        return ext ? (0, audioUtil_1.addExtname)(this.originalPath, ext) : path;
-		    };
-		    HTMLAudioAsset.prototype.createAudioElement = function (src) {
-		        return new Audio(src);
-		    };
-		    HTMLAudioAsset.prototype._attachAll = function (audio, handlers) {
-		        if (handlers.success) {
-		            /* eslint-disable max-len */
-		            // https://developer.mozilla.org/en-US/docs/Web/Events/canplaythrough
-		            // https://github.com/goldfire/howler.js/blob/1dad25cdd9d6982232050454e8b45411902efe65/howler.js#L372
-		            // https://github.com/CreateJS/SoundJS/blob/e2d4842a84ff425ada861edb9f6e9b57f63d7caf/src/soundjs/htmlaudio/HTMLAudioSoundInstance.js#L145-145
-		            /* eslint-enable max-len */
-		            audio.addEventListener("canplaythrough", handlers.success, false);
-		        }
-		        if (handlers.error) {
-		            // https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
-		            // stalledはfetchして取れなかった時に起きるイベント
-		            audio.addEventListener("stalled", handlers.error, false);
-		            audio.addEventListener("error", handlers.error, false);
-		            audio.addEventListener("abort", handlers.error, false);
-		        }
-		    };
-		    HTMLAudioAsset.prototype._detachAll = function (audio, handlers) {
-		        if (handlers.success) {
-		            audio.removeEventListener("canplaythrough", handlers.success, false);
-		        }
-		        if (handlers.error) {
-		            audio.removeEventListener("stalled", handlers.error, false);
-		            audio.removeEventListener("error", handlers.error, false);
-		            audio.removeEventListener("abort", handlers.error, false);
-		        }
 		    };
 		    return HTMLAudioAsset;
 		}(AudioAsset_1.AudioAsset));
@@ -17922,8 +18192,44 @@
 		hasRequiredHTMLAudioAutoplayHelper = 1;
 		/// chrome66以降などのブラウザに導入されるAutoplay Policyに対応する
 		// https://developers.google.com/web/updates/2017/09/autoplay-policy-changes
+		var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+		    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+		    return new (P || (P = Promise))(function (resolve, reject) {
+		        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+		        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+		        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+		        step((generator = generator.apply(thisArg, _arguments || [])).next());
+		    });
+		};
+		var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
+		    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+		    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+		    function verb(n) { return function (v) { return step([n, v]); }; }
+		    function step(op) {
+		        if (f) throw new TypeError("Generator is already executing.");
+		        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+		            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+		            if (y = 0, t) op = [op[0] & 2, t.value];
+		            switch (op[0]) {
+		                case 0: case 1: t = op; break;
+		                case 4: _.label++; return { value: op[1], done: false };
+		                case 5: _.label++; y = op[1]; op = [0]; continue;
+		                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+		                default:
+		                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+		                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+		                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+		                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+		                    if (t[2]) _.ops.pop();
+		                    _.trys.pop(); continue;
+		            }
+		            op = body.call(thisArg, _);
+		        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+		        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+		    }
+		};
 		Object.defineProperty(HTMLAudioAutoplayHelper, "__esModule", { value: true });
-		HTMLAudioAutoplayHelper.setupChromeMEIWorkaround = void 0;
+		HTMLAudioAutoplayHelper.setupChromeMEIWorkaround = setupChromeMEIWorkaround;
 		var state = 0 /* PlayableState.Unknown */;
 		var suspendedAudioElements = [];
 		function setupChromeMEIWorkaround(audio) {
@@ -17941,21 +18247,35 @@
 		        clearTimeout(timer);
 		    }
 		    function suspendedHandler() {
-		        audio.removeEventListener("play", playHandler);
-		        switch (state) {
-		            case 0 /* PlayableState.Unknown */:
-		                suspendedAudioElements.push(audio);
-		                state = 1 /* PlayableState.WaitingInteraction */;
-		                setUserInteractListener();
-		                break;
-		            case 1 /* PlayableState.WaitingInteraction */:
-		                suspendedAudioElements.push(audio);
-		                break;
-		            case 2 /* PlayableState.Ready */:
-		                audio.play(); // suspendedHandler が呼ばれるまでに音が鳴らせるようになった場合
-		                break;
-		            // do nothing;
-		        }
+		        return __awaiter(this, void 0, void 0, function () {
+		            var _a;
+		            return __generator(this, function (_b) {
+		                switch (_b.label) {
+		                    case 0:
+		                        audio.removeEventListener("play", playHandler);
+		                        _a = state;
+		                        switch (_a) {
+		                            case 0 /* PlayableState.Unknown */: return [3 /*break*/, 1];
+		                            case 1 /* PlayableState.WaitingInteraction */: return [3 /*break*/, 2];
+		                            case 2 /* PlayableState.Ready */: return [3 /*break*/, 3];
+		                        }
+		                        return [3 /*break*/, 5];
+		                    case 1:
+		                        suspendedAudioElements.push(audio);
+		                        state = 1 /* PlayableState.WaitingInteraction */;
+		                        setUserInteractListener();
+		                        return [3 /*break*/, 5];
+		                    case 2:
+		                        suspendedAudioElements.push(audio);
+		                        return [3 /*break*/, 5];
+		                    case 3: return [4 /*yield*/, audio.play()];
+		                    case 4:
+		                        _b.sent(); // suspendedHandler が呼ばれるまでに音が鳴らせるようになった場合
+		                        return [3 /*break*/, 5];
+		                    case 5: return [2 /*return*/];
+		                }
+		            });
+		        });
 		    }
 		    switch (state) {
 		        case 0 /* PlayableState.Unknown */:
@@ -17968,7 +18288,6 @@
 		        // do nothing
 		    }
 		}
-		HTMLAudioAutoplayHelper.setupChromeMEIWorkaround = setupChromeMEIWorkaround;
 		function resumeHandler() {
 		    playSuspendedAudioElements();
 		    clearUserInteractListener();
@@ -18011,6 +18330,42 @@
 		        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 		    };
 		})();
+		var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+		    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+		    return new (P || (P = Promise))(function (resolve, reject) {
+		        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+		        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+		        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+		        step((generator = generator.apply(thisArg, _arguments || [])).next());
+		    });
+		};
+		var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
+		    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+		    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+		    function verb(n) { return function (v) { return step([n, v]); }; }
+		    function step(op) {
+		        if (f) throw new TypeError("Generator is already executing.");
+		        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+		            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+		            if (y = 0, t) op = [op[0] & 2, t.value];
+		            switch (op[0]) {
+		                case 0: case 1: t = op; break;
+		                case 4: _.label++; return { value: op[1], done: false };
+		                case 5: _.label++; y = op[1]; op = [0]; continue;
+		                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+		                default:
+		                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+		                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+		                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+		                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+		                    if (t[2]) _.ops.pop();
+		                    _.trys.pop(); continue;
+		            }
+		            op = body.call(thisArg, _);
+		        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+		        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+		    }
+		};
 		Object.defineProperty(HTMLAudioPlayer, "__esModule", { value: true });
 		HTMLAudioPlayer.HTMLAudioPlayer = void 0;
 		var AudioPlayer_1 = requireAudioPlayer();
@@ -18034,6 +18389,7 @@
 		        return _this;
 		    }
 		    HTMLAudioPlayer.prototype.play = function (asset) {
+		        var _this = this;
 		        var _a, _b;
 		        if (this.currentAudio) {
 		            if (asset.id === this.currentAudio.id) {
@@ -18067,12 +18423,20 @@
 		                        }
 		                    }
 		                };
-		                audio.onended = function () {
-		                    if (asset.loop) {
-		                        audio.currentTime = offsetSec_1;
-		                        audio.play();
-		                    }
-		                };
+		                audio.onended = function () { return __awaiter(_this, void 0, void 0, function () {
+		                    return __generator(this, function (_a) {
+		                        switch (_a.label) {
+		                            case 0:
+		                                if (!asset.loop) return [3 /*break*/, 2];
+		                                audio.currentTime = offsetSec_1;
+		                                return [4 /*yield*/, audio.play()];
+		                            case 1:
+		                                _a.sent();
+		                                _a.label = 2;
+		                            case 2: return [2 /*return*/];
+		                        }
+		                    });
+		                }); };
 		            }
 		            (0, HTMLAudioAutoplayHelper_1.setupChromeMEIWorkaround)(audio);
 		            audio.volume = this._calculateVolume();
@@ -18167,6 +18531,7 @@
 		hasRequiredHTMLAudioPlugin = 1;
 		Object.defineProperty(HTMLAudioPlugin, "__esModule", { value: true });
 		HTMLAudioPlugin.HTMLAudioPlugin = void 0;
+		var CachedLoader_1 = requireCachedLoader();
 		var audioUtil_1 = requireAudioUtil();
 		var HTMLAudioAsset_1 = requireHTMLAudioAsset();
 		var HTMLAudioPlayer_1 = requireHTMLAudioPlayer();
@@ -18174,6 +18539,8 @@
 		    function HTMLAudioPlugin() {
 		        this._supportedFormats = [];
 		        this.supportedFormats = (0, audioUtil_1.detectSupportedFormats)();
+		        // 音声ファイルのファイルサイズ取得が困難なので、保存可能容量として音声の合計再生時間を利用。100分を上限とする
+		        this._cachedLoader = new CachedLoader_1.CachedLoader(HTMLAudioAsset_1.loadAudioElement, { limitSize: 6000000 });
 		    }
 		    // https://github.com/Modernizr/Modernizr/blob/master/feature-detects/audio.js
 		    // https://github.com/CreateJS/SoundJS/blob/master/src/soundjs/htmlaudio/HTMLAudioPlugin.js
@@ -18184,7 +18551,7 @@
 		        try {
 		            result = (audioElement.canPlayType !== undefined);
 		        }
-		        catch (e) {
+		        catch (_e) {
 		            // ignore Error
 		        }
 		        return result;
@@ -18201,10 +18568,15 @@
 		        configurable: true
 		    });
 		    HTMLAudioPlugin.prototype.createAsset = function (id, path, duration, system, loop, hint, offset) {
-		        return new HTMLAudioAsset_1.HTMLAudioAsset(id, path, duration, system, loop, hint, offset);
+		        var asset = new HTMLAudioAsset_1.HTMLAudioAsset(id, path, duration, system, loop, hint, offset);
+		        asset._loadFun = this._cachedLoader.load.bind(this._cachedLoader);
+		        return asset;
 		    };
 		    HTMLAudioPlugin.prototype.createPlayer = function (system, manager) {
 		        return new HTMLAudioPlayer_1.HTMLAudioPlayer(system, manager);
+		    };
+		    HTMLAudioPlugin.prototype.clear = function () {
+		        this._cachedLoader.reset();
 		    };
 		    return HTMLAudioPlugin;
 		}());
@@ -18386,6 +18758,9 @@
 		    ProxyAudioPlugin.prototype.createPlayer = function (system, manager) {
 		        return new ProxyAudioPlayer_1.ProxyAudioPlayer(this._handlerSet, system, manager);
 		    };
+		    ProxyAudioPlugin.prototype.clear = function () {
+		        // このクラスで初期化が必要なプロパティはないため、このメソッドでは何もしない
+		    };
 		    return ProxyAudioPlugin;
 		}());
 		ProxyAudioPlugin.ProxyAudioPlugin = ProxyAudioPlugin$1;
@@ -18482,13 +18857,91 @@
 		        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 		    };
 		})();
+		var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+		    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+		    return new (P || (P = Promise))(function (resolve, reject) {
+		        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+		        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+		        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+		        step((generator = generator.apply(thisArg, _arguments || [])).next());
+		    });
+		};
+		var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
+		    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+		    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+		    function verb(n) { return function (v) { return step([n, v]); }; }
+		    function step(op) {
+		        if (f) throw new TypeError("Generator is already executing.");
+		        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+		            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+		            if (y = 0, t) op = [op[0] & 2, t.value];
+		            switch (op[0]) {
+		                case 0: case 1: t = op; break;
+		                case 4: _.label++; return { value: op[1], done: false };
+		                case 5: _.label++; y = op[1]; op = [0]; continue;
+		                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+		                default:
+		                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+		                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+		                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+		                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+		                    if (t[2]) _.ops.pop();
+		                    _.trys.pop(); continue;
+		            }
+		            op = body.call(thisArg, _);
+		        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+		        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+		    }
+		};
 		Object.defineProperty(WebAudioAsset, "__esModule", { value: true });
 		WebAudioAsset.WebAudioAsset = void 0;
+		WebAudioAsset.loadArrayBuffer = loadArrayBuffer;
 		var AudioAsset_1 = requireAudioAsset();
 		var ExceptionFactory_1 = requireExceptionFactory$1();
 		var XHRLoader_1 = requireXHRLoader();
 		var audioUtil_1 = requireAudioUtil();
 		var helper = requireWebAudioHelper();
+		function loadArrayBuffer(url) {
+		    return __awaiter(this, void 0, void 0, function () {
+		        function _loadArrayBuffer(url) {
+		            var l = new XHRLoader_1.XHRLoader();
+		            return new Promise(function (resolve, reject) {
+		                l.getArrayBuffer(url, function (err, result) {
+		                    if (err) {
+		                        return reject(err);
+		                    }
+		                    if (!result) {
+		                        return reject("response is undefined: ".concat(url));
+		                    }
+		                    var audioContext = helper.getAudioContext();
+		                    audioContext.decodeAudioData(result, function (audio) { var _a; return resolve({ value: { audio: audio, url: url }, size: (_a = result.byteLength) !== null && _a !== void 0 ? _a : 0 }); }, reject).catch(function (e) {
+		                        reject(e);
+		                    });
+		                });
+		            });
+		        }
+		        var e_1, delIndex, basePath, newUrl, query;
+		        return __generator(this, function (_a) {
+		            switch (_a.label) {
+		                case 0:
+		                    _a.trys.push([0, 2, , 5]);
+		                    return [4 /*yield*/, _loadArrayBuffer(url)];
+		                case 1: return [2 /*return*/, _a.sent()];
+		                case 2:
+		                    e_1 = _a.sent();
+		                    delIndex = url.indexOf("?");
+		                    basePath = delIndex >= 0 ? url.substring(0, delIndex) : url;
+		                    if (!(basePath.slice(-4) === ".aac")) return [3 /*break*/, 4];
+		                    newUrl = url.substring(0, delIndex - 4) + ".mp4";
+		                    query = delIndex >= 0 ? url.substring(delIndex, url.length) : "";
+		                    return [4 /*yield*/, _loadArrayBuffer(newUrl + query)];
+		                case 3: return [2 /*return*/, _a.sent()];
+		                case 4: throw e_1;
+		                case 5: return [2 /*return*/];
+		            }
+		        });
+		    });
+		}
 		var WebAudioAsset$1 = /** @class */ (function (_super) {
 		    __extends(WebAudioAsset, _super);
 		    function WebAudioAsset() {
@@ -18502,43 +18955,17 @@
 		            setTimeout(function () { return loader._onAssetLoad(_this); }, 0);
 		            return;
 		        }
-		        var successHandler = function (decodedAudio) {
-		            _this.data = decodedAudio;
+		        var load = this._loadFun ? this._loadFun : loadArrayBuffer;
+		        load(this.path).then(function (data) {
+		            // aac読み込み失敗時に代わりにmp4が読み込まれるなど、パスの拡張子が変わるケースがある
+		            if (_this.path !== data.value.url) {
+		                _this.path = data.value.url;
+		            }
+		            _this.data = data.value.audio;
 		            loader._onAssetLoad(_this);
-		        };
-		        var errorHandler = function () {
+		        }).catch(function (_e) {
 		            loader._onAssetError(_this, ExceptionFactory_1.ExceptionFactory.createAssetLoadError("WebAudioAsset unknown loading error"));
-		        };
-		        var onLoadArrayBufferHandler = function (response) {
-		            var audioContext = helper.getAudioContext();
-		            audioContext.decodeAudioData(response, successHandler, errorHandler);
-		        };
-		        var xhrLoader = new XHRLoader_1.XHRLoader();
-		        var loadArrayBuffer = function (path, onSuccess, onFailed) {
-		            xhrLoader.getArrayBuffer(path, function (error, response) {
-		                if (error) {
-		                    onFailed(error);
-		                }
-		                else {
-		                    onSuccess(response);
-		                }
-		            });
-		        };
-		        var delIndex = this.path.indexOf("?");
-		        var basePath = delIndex >= 0 ? this.path.substring(0, delIndex) : this.path;
-		        if (basePath.slice(-4) === ".aac") {
-		            // 暫定対応：後方互換性のため、aacファイルが無い場合はmp4へのフォールバックを試みる。
-		            // この対応を止める際には、WebAudioPluginのsupportedExtensionsからaacを除外する必要がある。
-		            loadArrayBuffer(this.path, onLoadArrayBufferHandler, function (_error) {
-		                var altPath = (0, audioUtil_1.addExtname)(_this.originalPath, ".mp4");
-		                loadArrayBuffer(altPath, function (response) {
-		                    _this.path = altPath;
-		                    onLoadArrayBufferHandler(response);
-		                }, errorHandler);
-		            });
-		            return;
-		        }
-		        loadArrayBuffer(this.path, onLoadArrayBufferHandler, errorHandler);
+		        });
 		    };
 		    WebAudioAsset.prototype._assetPathFilter = function (path) {
 		        if (WebAudioAsset.supportedFormats.indexOf("ogg") !== -1) {
@@ -18571,6 +18998,42 @@
 	function requireWebAudioAutoplayHelper () {
 		if (hasRequiredWebAudioAutoplayHelper) return WebAudioAutoplayHelper_1;
 		hasRequiredWebAudioAutoplayHelper = 1;
+		var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+		    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+		    return new (P || (P = Promise))(function (resolve, reject) {
+		        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+		        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+		        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+		        step((generator = generator.apply(thisArg, _arguments || [])).next());
+		    });
+		};
+		var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
+		    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+		    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+		    function verb(n) { return function (v) { return step([n, v]); }; }
+		    function step(op) {
+		        if (f) throw new TypeError("Generator is already executing.");
+		        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+		            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+		            if (y = 0, t) op = [op[0] & 2, t.value];
+		            switch (op[0]) {
+		                case 0: case 1: t = op; break;
+		                case 4: _.label++; return { value: op[1], done: false };
+		                case 5: _.label++; y = op[1]; op = [0]; continue;
+		                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+		                default:
+		                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+		                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+		                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+		                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+		                    if (t[2]) _.ops.pop();
+		                    _.trys.pop(); continue;
+		            }
+		            op = body.call(thisArg, _);
+		        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+		        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+		    }
+		};
 		var helper = requireWebAudioHelper();
 		// chrome66以降などのブラウザに導入されるAutoplay Policyに対応する
 		// https://developers.google.com/web/updates/2017/09/autoplay-policy-changes
@@ -18595,9 +19058,20 @@
 		    WebAudioAutoplayHelper.setupChromeMEIWorkaround = setupChromeMEIWorkaround;
 		})(WebAudioAutoplayHelper || (WebAudioAutoplayHelper = {}));
 		function resumeHandler() {
-		    var context = helper.getAudioContext();
-		    context.resume();
-		    clearUserInteractListener();
+		    return __awaiter(this, void 0, void 0, function () {
+		        var context;
+		        return __generator(this, function (_a) {
+		            switch (_a.label) {
+		                case 0:
+		                    context = helper.getAudioContext();
+		                    clearUserInteractListener();
+		                    return [4 /*yield*/, context.resume()];
+		                case 1:
+		                    _a.sent();
+		                    return [2 /*return*/];
+		            }
+		        });
+		    });
 		}
 		function setUserInteractListener() {
 		    document.addEventListener("keydown", resumeHandler, true);
@@ -18737,6 +19211,7 @@
 		hasRequiredWebAudioPlugin = 1;
 		Object.defineProperty(WebAudioPlugin, "__esModule", { value: true });
 		WebAudioPlugin.WebAudioPlugin = void 0;
+		var CachedLoader_1 = requireCachedLoader();
 		var audioUtil_1 = requireAudioUtil();
 		var WebAudioAsset_1 = requireWebAudioAsset();
 		var autoPlayHelper = requireWebAudioAutoplayHelper();
@@ -18745,6 +19220,8 @@
 		    function WebAudioPlugin() {
 		        this._supportedFormats = [];
 		        this.supportedFormats = (0, audioUtil_1.detectSupportedFormats)();
+		        // 保存可能容量としてファイルサイズの合計値を利用。100MBを上限とする
+		        this._cachedLoader = new CachedLoader_1.CachedLoader(WebAudioAsset_1.loadArrayBuffer, { limitSize: 100000000 });
 		        autoPlayHelper.setupChromeMEIWorkaround();
 		    }
 		    // AudioContextが存在するかどうかで判定する
@@ -18771,10 +19248,15 @@
 		        configurable: true
 		    });
 		    WebAudioPlugin.prototype.createAsset = function (id, assetPath, duration, system, loop, hint, offset) {
-		        return new WebAudioAsset_1.WebAudioAsset(id, assetPath, duration, system, loop, hint, offset);
+		        var asset = new WebAudioAsset_1.WebAudioAsset(id, assetPath, duration, system, loop, hint, offset);
+		        asset._loadFun = this._cachedLoader.load.bind(this._cachedLoader);
+		        return asset;
 		    };
 		    WebAudioPlugin.prototype.createPlayer = function (system, manager) {
 		        return new WebAudioPlayer_1.WebAudioPlayer(system, manager);
+		    };
+		    WebAudioPlugin.prototype.clear = function () {
+		        this._cachedLoader.reset();
 		    };
 		    return WebAudioPlugin;
 		}());
