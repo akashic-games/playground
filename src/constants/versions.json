@@ -2,8 +2,8 @@
   "version": "1",
   "akashicEngineVersions": [
     {
-      "version": "3.20.2",
-      "name": "akashic-engine-standalone-3.20.2.js"
+      "version": "3.21.1",
+      "name": "akashic-engine-standalone-3.21.1.js"
     }
   ]
 }
