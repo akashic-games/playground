@@ -1,4 +1,4 @@
-/*v3.20.2
+/*v3.21.1
 
 */
 // Dependencies for this module:
@@ -870,6 +870,27 @@ declare module 'g/lib/Game' {
                 * @param owner func の呼び出し時に `this` として使われる値。指定しなかった場合、 `undefined` 。
                 */
             requestSaveSnapshot(func: () => SnapshotSaveRequest | null, owner?: any): void;
+            /**
+                * ローカルティック生成を中断する。
+                * `isActiveInstance()` が真のインスタンスでは何もしない。
+                *
+                * 中断されたローカルティック生成は、次の契機で再開される。
+                *  * 明示的に `resumeLocalTick()` を呼び出した場合
+                *  * 非ローカルティックを受信した場合
+                *  * ローカルイベントを受信した場合
+                *
+                * 制限事項: 現実装では、次のいずれかの場合、このメソッドでローカルティックを中断させてはならない。
+                *  * シーン遷移時 (`g.game.pushScene()`, `popScene()` などの呼び出し時から、遷移先シーンの最初の onUpdate 通知まで)
+                *  * ローディングシーン中
+                *  * `g.Scene#requestAssets()` 呼び出し後、コールバックが呼ばれるまでの間
+                * この制限は将来的に緩和される。
+                */
+            suspendLocalTick(): void;
+            /**
+                * ローカルティック生成を再開する。
+                * 中断されていない場合は何もしない。
+                */
+            resumeLocalTick(): void;
             /**
                 * 現在時刻を取得する。
                 *
@@ -2263,6 +2284,27 @@ declare module 'g/lib/GameHandlerSet' {
                 */
             saveSnapshot(frame: number, snapshot: any, randGenSer: any, nextEntityId: number, timestamp?: number): void;
             /**
+                * ローカルティック生成を中断する。
+                * `isActiveInstance()` が真のインスタンスでは何もしない。
+                *
+                * 中断されたローカルティック生成は、次の契機で再開される。
+                *  * 明示的に `resumeLocalTick()` を呼び出した場合
+                *  * 非ローカルティックを受信した場合
+                *  * ローカルイベントを受信した場合
+                *
+                * 制限事項: 現実装では、次のいずれかの場合、このメソッドでローカルティックを中断させてはならない。
+                *  * シーン遷移時 (`g.game.pushScene()`, `popScene()` などの呼び出し時から、遷移先シーンの最初の onUpdate 通知まで)
+                *  * ローディングシーン中
+                *  * `g.Scene#requestAssets()` 呼び出し後、コールバックが呼ばれるまでの間
+                * この制限は将来的に緩和される。
+                */
+            suspendLocalTick(): void;
+            /**
+                * ローカルティック生成を再開する。
+                * 中断されていない場合は何もしない。
+                */
+            resumeLocalTick(): void;
+            /**
                 * このインスタンスの種別を取得する
                 */
             getInstanceType(): "active" | "passive";
@@ -3645,6 +3687,7 @@ declare module 'g/lib/index.common' {
     export * from "g/lib/InternalOperationPluginInfo";
     export * from "g/lib/LoadingScene";
     export * from "g/lib/LocalTickModeString";
+    export * from "g/lib/Math";
     export * from "g/lib/Matrix";
     export * from "g/lib/Module";
     export * from "g/lib/ModuleManager";
@@ -3847,7 +3890,7 @@ declare module 'g/lib/AudioSystem' {
             /**
                 * @private
                 */
-            abstract _onVolumeChanged(): void;
+            _onVolumeChanged(): void;
             /**
                 * @private
                 */
@@ -5112,12 +5155,6 @@ declare module 'g/lib/entities/CacheableE' {
         * 内部描画キャッシュを持つ `E` 。
         */
     export abstract class CacheableE extends E {
-            /**
-                * _cache のパディングサイズ。
-                *
-                * @private
-                */
-            static PADDING: number;
             /**
                 * エンジンが子孫を描画すべきであれば`true`、でなければ`false`を本クラスを継承したクラスがセットする。
                 * デフォルト値は`true`となる。
@@ -6607,6 +6644,42 @@ declare module 'g/lib/InternalOperationPluginInfo' {
                 * @private
                 */
             _plugin?: OperationPlugin;
+    }
+}
+
+declare module 'g/lib/Math' {
+    /**
+        * Math を初期化するオプション。
+        */
+    export interface MathInitializeOption {
+            tableSize?: number;
+            wholePeriod?: boolean;
+            iterationNum?: number;
+    }
+    /**
+        * ルックアップテーブルを使った三角関数計算を提供する。
+        */
+    export namespace Math {
+            /**
+                * Math を初期化する関数。
+                * 指定したテーブルサイズおよび近似計算の反復回数に基づき、正弦値のルックアップテーブルを生成する。
+                * 本関数は `Math.sin()` や `Math.cos()` を使用する前に呼ぶ必要がある。
+                */
+            function initialize(option?: MathInitializeOption): void;
+            /**
+                * 高速な正弦関数。
+                *
+                * @param th ラジアン角
+                * @returns 結果
+                */
+            let sin: (th: number) => number;
+            /**
+                * 高速な余弦関数。
+                *
+                * @param th ラジアン角
+                * @returns 結果
+                */
+            let cos: (th: number) => number;
     }
 }
 
