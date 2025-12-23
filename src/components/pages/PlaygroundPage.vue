@@ -5,11 +5,12 @@
 		<div class="container-header">
 			<div class="logo">Akashic Playground</div>
 		</div>
-		<div class="container-body">
-			<div class="container-editor">
+		<div ref="containerBodyRef" class="container-body">
+			<div class="container-editor" :style="isLargeScreen ? { width: leftPaneWidth } : {}">
 				<AkashicEditor :pseudoFiles="gameConfs.pseudoFiles" />
 			</div>
-			<div class="container-agv hidden-scrollbar">
+			<div class="resizer" @mousedown="handleStartResize"></div>
+			<div class="container-agv hidden-scrollbar" :style="isLargeScreen ? { width: rightPaneWidth } : {}">
 				<GameController />
 			</div>
 		</div>
@@ -20,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { provide } from "vue";
+import { provide, ref, computed, onMounted, onUnmounted } from "vue";
 
 import DownloadButton from "~/components/molecules/DownloadButton.vue";
 import AkashicEditor from "~/components/templates/AkashicEditor.vue";
@@ -43,6 +44,55 @@ provide(useGameJSONResolverKey, gameConfs);
 provide(useGameContextKey, useGameContext());
 // FIXME: await を付けた場合、実行時にページが真っ白で表示されなくなる。
 gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri).catch(e => console.error(e));
+
+// 左右リサイズ機能
+const breakpoint = 960;
+const containerBodyRef = ref<HTMLElement | null>(null);
+const leftPaneWidthPercent = ref(60);
+const isResizing = ref(false);
+const isLargeScreen = ref(true);
+
+const leftPaneWidth = computed(() => `${leftPaneWidthPercent.value}%`);
+const rightPaneWidth = computed(() => `${100 - leftPaneWidthPercent.value}%`);
+
+const handleWindowResize = () => {
+	isLargeScreen.value = window.matchMedia(`(min-width: ${breakpoint}px)`).matches;
+};
+
+const handleStartResize = (e: MouseEvent) => {
+	isResizing.value = true;
+	e.preventDefault();
+};
+
+const handleMouseMove = (e: MouseEvent) => {
+	if (!isResizing.value) return;
+	if (!containerBodyRef.value) return;
+
+	const containerRect = containerBodyRef.value.getBoundingClientRect();
+	const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+
+	// 最小幅 20% 最大幅 80% に制限
+	if (newLeftWidth >= 20 && newLeftWidth <= 80) {
+		leftPaneWidthPercent.value = newLeftWidth;
+	}
+};
+
+const handleMouseUp = () => {
+	isResizing.value = false;
+};
+
+onMounted(() => {
+	handleWindowResize();
+	window.addEventListener("resize", handleWindowResize);
+	document.addEventListener("mousemove", handleMouseMove);
+	document.addEventListener("mouseup", handleMouseUp);
+});
+
+onUnmounted(() => {
+	window.removeEventListener("resize", handleWindowResize);
+	document.removeEventListener("mousemove", handleMouseMove);
+	document.removeEventListener("mouseup", handleMouseUp);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -73,18 +123,32 @@ gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri).catch(e => console.error(e)
 	}
 
 	.container-editor {
-		width: 100%;
 		height: 100%;
 		display: flex;
 		flex-direction: row;
 		overflow: hidden;
 	}
 
+	.resizer {
+		width: 4px;
+		background-color: #ccc;
+		cursor: col-resize;
+		flex-shrink: 0;
+		transition: background-color 0.2s;
+		user-select: none;
+
+		&:hover {
+			background-color: #999;
+		}
+
+		&:active {
+			background-color: #666;
+		}
+	}
+
 	.container-agv {
-		width: 100%;
+		height: 100%;
 		margin: 0 auto;
-		display: flex;
-		flex-wrap: wrap;
 		display: flex;
 		flex-direction: column;
 		overflow: scroll;
@@ -122,8 +186,6 @@ gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri).catch(e => console.error(e)
 		width: 100%;
 		height: calc(100% - 45px);
 		display: flex;
-		flex-direction: row;
-		flex-direction: column;
 		flex-direction: column-reverse;
 	}
 
@@ -136,9 +198,14 @@ gameConfs.fetchPseudoFilesFromUri(props.gameJsonUri).catch(e => console.error(e)
 		position: relative;
 	}
 
+	.resizer {
+		display: none;
+	}
+
 	.container-agv {
 		margin: 0 auto;
 		display: flex;
+		justify-content: center;
 		overflow: visible;
 		flex-direction: row;
 		position: relative;

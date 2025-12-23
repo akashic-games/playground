@@ -33,6 +33,10 @@ export function useGameContext(): State {
 	};
 
 	function handleError(err: ErrorEvent): void {
+		if (err.message.includes("ResizeObserver loop")) {
+			// ResizeObserver のループ完了エラーは無害なので無視
+			return;
+		}
 		addConsole({
 			type: "error",
 			name: err.toString(),
