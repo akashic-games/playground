@@ -77,7 +77,6 @@ watch(
 		if (!dependencies.length) return;
 		const extLibsResolver = useExtraLibsResolver();
 		const uris = extLibsResolver.getExtraLibUris(gameContext.currentVersion, dependencies);
-		await extLibsResolver.fetchExtraLibsFromUris(uris);
 		watch(
 			() => extLibsResolver.extraLibs,
 			extraLibs => {
@@ -87,6 +86,7 @@ watch(
 				deep: true
 			}
 		);
+		await extLibsResolver.fetchExtraLibsFromUris(uris);
 	},
 	{
 		deep: true
