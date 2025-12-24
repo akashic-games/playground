@@ -68,7 +68,7 @@ export function useGameContext(): State {
 		state.consoleValues.push({
 			type: "info",
 			name: "TODO",
-			message: "This console only showing error log"
+			message: "This console shows error logs only"
 		});
 	};
 

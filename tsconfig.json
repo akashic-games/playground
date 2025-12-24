@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "ESNext",
+    "module": "nodenext",
     "lib": ["es2015", "dom"],
     "strict": true,
     "moduleResolution": "NodeNext",
